@@ -1,8 +1,9 @@
-from flask import render_template, flash
+from flask import render_template
 from flaskr import app
 
 @app.route('/')
 def index():
-    flash('テストメッセージ', 'success')
-    flash('テストメッセージ', 'danger')
     return render_template('index.pug')
+
+from flaskr.views import persons
+app.register_blueprint(persons.bp)

@@ -1,3 +1,4 @@
+include _form.pug
 doctype html
 html(lang="ja")
     head
@@ -20,7 +21,7 @@ html(lang="ja")
                     a.navbar-brand(href="{{ url_for('index') }}") ペタペタシステム
                 .collapse.navbar-collapse#bs-example-navbar-collapse-1
                     ul.nav.navbar-nav.navbar-left
-                        li: a(href="{{ url_for('index') }}") メニュー１
+                        li: a(href="{{ url_for('persons.index') }}") メンバー管理
                         li: a(href="{{ url_for('index') }}") メニュー２
                         li: a(href="{{ url_for('index') }}") メニュー３
                     ul.nav.navbar-nav.navbar-right

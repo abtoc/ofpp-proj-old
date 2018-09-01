@@ -18,7 +18,7 @@ class Person(db.Model):
     enabled = db.Column(db.Boolean, nullable=True)
     number = db.Column(db.String(10), nullable=False)
     amount = db.Column(db.String(64), nullable=False)
-    usetart = db.Column(db.Date, nullable=True)
+    usestart = db.Column(db.Date, nullable=True)
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)
     def get_usestart(self):
@@ -31,17 +31,15 @@ class Person(db.Model):
             return False
         return (usestart <= d) and (d <= usestart30d)
     def populate_form(self,form):
-        form.populate_form(self)
-        if len(self.id) == 0:
+        form.populate_obj(self)
+        if (self.id is not None) and (len(self.id) == 0):
             self.id = None
-        if len(self.idm) == 0:
+        if (self.idm is not None) and (len(self.idm) == 0):
             self.idm = None
-        if len(self.usestart) == 0:
-            self.usestart = None
     @classmethod
     def get(cls, id):
-        cls.query.filter(cls.id == id).first()
+        return cls.query.filter(cls.id == id).first()
     @classmethod
-    def get_id(cls, idm):
-        cls.query.filter(cls.idm == idm).first()
+    def get_idm(cls, idm):
+        return cls.query.filter(cls.idm == idm).first()
     
