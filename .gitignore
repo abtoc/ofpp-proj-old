@@ -7,4 +7,3 @@ instance
 nohup.out
 celerybeat-schedule.*
 celerybeat.*
-
