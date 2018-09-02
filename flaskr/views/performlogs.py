@@ -6,7 +6,7 @@ from wtforms import StringField, BooleanField, IntegerField
 from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db
 from flaskr.models import Person, PerformLog
-from flaskr.utils import weeka
+from flaskr.utils import weeka, is_zero_none
 
 bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')
 
@@ -161,8 +161,13 @@ def edit(id, yymm, dd):
         abort(404)
     form =  PerformLogsFormIDM(obj=performlog)
     if form.validate_on_submit():
-        performlog = PerformLog.get(id, yymm, dd)
         performlog.populate_form(form)
+        if bool(performlog.absence):
+            print(performlog.work_in)
+            print(performlog.work_out)
+            if (is_zero_none(performlog.work_in)) or (is_zero_none(performlog.work_out)):
+                flash('開始・終了時刻が入っているため、欠席にはできません', 'danger')
+                return render_template('performlogs/edit.pug', form=form, item=item)
         db.session.add(performlog)
         try:
             db.session.commit()
