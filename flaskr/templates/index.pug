@@ -12,6 +12,7 @@ block content
             for item in items
                 tr
                     td= item['name']
-                    td
+                    td(align="right")
                         .btn-group
-                            a.btn.btn-info(href="{{ url_for('index') }}") 実績記録
+                            if not item['staff']
+                                a.btn.btn-info(href="{{ url_for('index') }}") 実績記録

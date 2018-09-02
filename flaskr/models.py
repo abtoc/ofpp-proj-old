@@ -16,9 +16,10 @@ class Person(db.Model):
     name = db.Column(db.String(64), nullable=False)     # 名前
     display = db.Column(db.String(64), nullable=True)   # 表示名
     idm = db.Column(db.String(16), unique=True)         # Ferica IDM
-    enabled = db.Column(db.Boolean, nullable=True)      # 有効化
-    number = db.Column(db.String(10), nullable=False)   # 受給者番号
-    amount = db.Column(db.String(64), nullable=False)   # 契約支給量
+    enabled = db.Column(db.Boolean, nullable=False)     # 有効化
+    staff = db.Column(db.Boolean, nullable=False)       # 職員
+    number = db.Column(db.String(10), nullable=True)    # 受給者番号（職員は不要）
+    amount = db.Column(db.String(64), nullable=True)    # 契約支給量（職員は不要）
     usestart = db.Column(db.Date, nullable=True)        # 利用開始日
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)

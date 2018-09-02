@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, Regexp, Optional
 from sqlalchemy import func
 from flaskr import app, db
 from flaskr.models import Person
+from flaskr.utils.validators import RegexpNotIf
 
 bp = Blueprint('persons', __name__, url_prefix='/persons')
 
@@ -26,8 +27,9 @@ class PersonNewForm(FlaskForm):
     display = StringField('表示名')
     idm = StringField('IDM', validators=[UniqueIDM(message='同一IDMが指定されています')])
     enabled = BooleanField('有効化', default='checked')
-    number = StringField('受給者番号', validators=[Regexp(message='数字10桁で入力してください', regex='^[0-9]{10}$')])
-    amount = StringField('契約支給量', validators=[DataRequired(message='必須項目です')])
+    staff = BooleanField('職員')
+    number = StringField('受給者番号', validators=[RegexpNotIf('staff', message='数字10桁で入力してください', regex='^[0-9]{10}$')])
+    amount = StringField('契約支給量')
     usestart = DateField('利用開始日', validators=[Optional()])
 
 class PersonEditForm(PersonNewForm):
