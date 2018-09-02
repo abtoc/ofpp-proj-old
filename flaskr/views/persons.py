@@ -35,7 +35,7 @@ class PersonEditForm(PersonNewForm):
 
 @bp.route('/')
 def index():
-    persons = Person.query.order_by(Person.name.desc()).all()
+    persons = Person.query.order_by(Person.name.asc()).all()
     return render_template('persons/index.pug', persons=persons)
 
 @bp.route('/create', methods=('GET', 'POST'))
