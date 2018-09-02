@@ -1,7 +1,7 @@
 extends performlogs/layout.pug
 
 block title
-    | 勤務表 - ペタペタシステム
+    | {{ head['name'] }} 実績票 - ペタペタシステム
 block content
     table.table.table-hover
         thead
@@ -48,13 +48,16 @@ block content
                     td: .text-center= item['visit'] if item['visit'] != None else ''
                     td: .text-center= item['meal'] if item['meal'] != None else ''
                     td: .text-center= item['medical'] if item['medical'] != None else ''
-                    td: .text-center= item['experience'] if item['experience'] != None else ''
+                    td: .text-center= item['experience'] if item['experience']  != None else ''
                     td: .text-center= item['outside'] if item['outside'] != None else ''
-                    td: .text-center= item['remark'] if item['remark'] != None else ''
+                    td: .text-center= item['remarks'] if item['remarks'] != None else ''
                     td: .text-right
                         .btn-group
-                            a.btn.btn-sm.btn-primary(href="{{ url_for('index') }}") 編集
-                            a.btn.btn-sm.btn-danger(href="{{ url_for('index') }}") 削除
+                            if item['edit']
+                                a.btn.btn-sm.btn-primary(href="{{ url_for('performlogs.edit', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
+                            else
+                                a.btn.btn-sm.btn-primary(href="{{ url_for('performlogs.create', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
+                            a.btn.btn-sm.btn-danger(href="{{ url_for('performlogs.destroy', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 削除
         tfoot
             tr
                 td(colspan="4"): .text-center 合計

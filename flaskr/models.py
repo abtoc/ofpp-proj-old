@@ -77,10 +77,6 @@ class PerformLog(db.Model):
             self.work_in == None
         if (self.work_out is not None) and (len(self.work_out) == 0):
             self.work_out == None
-        if (self.pickup_in is not None) and (len(self.pickup_in) == 0):
-            self.pickup_in == None
-        if (self.pickup_out is not None) and (len(self.pickup_out) == 0):
-            self.work_out == None
         if (self.remarks is not None) and (len(self.remarks) == 0):
             self.remarks == None
     @classmethod

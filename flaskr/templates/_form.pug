@@ -5,7 +5,7 @@ mixin generate_fields(form)
         else
             if field.errors
                 .form-group.has-error {{ field.label }}
-                    if field.type in ('StringField', 'PasswordField', 'TextAreaField',"DecimalField","DateField")
+                    if field.type in ('StringField', 'PasswordField', 'TextAreaField',"DecimalField","DateField","IntegerField")
                          | {{ field(class='form-control') }}
                     else
                          | {{ field() }}
@@ -13,7 +13,7 @@ mixin generate_fields(form)
                         span.help-block= error
             else
                 .form-group=  field.label
-                    if field.type in ('StringField', 'PasswordField', 'TextAreaField',"DecimalField","DateField")
+                    if field.type in ('StringField', 'PasswordField', 'TextAreaField',"DecimalField","DateField","IntegerField")
                          | {{ field(class='form-control') }}
                     else
                          | {{ field() }}

@@ -10,7 +10,7 @@ from flaskr.utils import weeka
 
 bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')
 
-class PerformLogs(FlaskForm):
+class PerformLogsFormIDM(FlaskForm):
     absence = BooleanField('欠席加算')
     work_in = StringField('開始時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
     work_out = StringField('終了時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
@@ -19,7 +19,8 @@ class PerformLogs(FlaskForm):
     visit = IntegerField('訪問支援特別加算（時間数）', validators=[Optional()])
     meal = IntegerField('食事提供加算', validators=[Optional()])
     medical = IntegerField('医療連携体制加算', validators=[Optional()])
-    outside = IntegerField('体験利用支援加算（初日ー５日目は１、６日目ー１５日目は2）', validators=[Optional()])
+    experience = IntegerField('体験利用支援加算（初日ー５日目は１、６日目ー１５日目は2）', validators=[Optional()])
+    outside = IntegerField('施設外支援', validators=[Optional()])
     remarks = StringField('備考')
 
 def _check_yymmdd(yymm, dd=1):
@@ -97,6 +98,7 @@ def index(id, yymm=None):
             item['pickup_out'] = performlog.pickup_out
             item['visit'] = performlog.visit
             item['meal'] = performlog.meal
+            item['medical'] = performlog.medical
             item['experience'] = performlog.experience
             item['outside'] = performlog.outside
             item['remarks'] = performlog.remarks
@@ -111,3 +113,81 @@ def index(id, yymm=None):
         items.append(item)
         first = first + relativedelta(days=1)
     return render_template('performlogs/index.pug', head=head, items=items, foot=foot)
+
+@bp.route('/<id>/<yymm>/<dd>/create', methods=('GET', 'POST'))
+def create(id, yymm, dd):
+    if (not _check_yymmdd(yymm,dd=dd)):
+        abort(400)
+    person   = Person.get(id)
+    if person is None:
+        abort(404)
+    yymmdd = date(int(yymm[:4]), int(yymm[4:]), int(dd))
+    item=dict(
+        id=person.id,
+        yymm=yymm,
+        name=person.get_display(),
+        yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
+    )
+    form =  PerformLogsFormIDM()
+    if form.validate_on_submit():
+        performlog = PerformLog(person_id=id, yymm=yymm, dd=dd)
+        performlog.populate_form(form)
+        db.session.add(performlog)
+        try:
+            db.session.commit()
+            flash('実績の追加ができました','success')
+            return redirect(url_for('performlogs.index', id=id, yymm=yymm))
+        except Exception as e:
+            db.session.rollback()
+            flash('実績追加時にエラーが発生しました "{}"'.format(e), 'danger')
+    return render_template('performlogs/edit.pug', form=form, item=item)
+
+@bp.route('/<id>/<yymm>/<dd>/edit', methods=('GET', 'POST'))
+def edit(id, yymm, dd):
+    if (not _check_yymmdd(yymm,dd=dd)):
+        abort(400)
+    person   = Person.get(id)
+    if person is None:
+        abort(404)
+    yymmdd = date(int(yymm[:4]), int(yymm[4:]), int(dd))
+    item=dict(
+        id=person.id,
+        yymm=yymm,
+        name=person.get_display(),
+        yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
+    )
+    performlog = PerformLog.get(id, yymm, dd)
+    if performlog is None:
+        abort(404)
+    form =  PerformLogsFormIDM(obj=performlog)
+    if form.validate_on_submit():
+        performlog = PerformLog.get(id, yymm, dd)
+        performlog.populate_form(form)
+        db.session.add(performlog)
+        try:
+            db.session.commit()
+            flash('実績の更新ができました','success')
+            return redirect(url_for('performlogs.index', id=id, yymm=yymm))
+        except Exception as e:
+            db.session.rollback()
+            flash('実績更新時にエラーが発生しました "{}"'.format(e), 'danger')
+    return render_template('performlogs/edit.pug', form=form, item=item)
+
+@bp.route('/<id>/<yymm>/<dd>/destroy')
+def destroy(id,yymm,dd):
+    if (not _check_yymmdd(yymm,dd=dd)):
+        abort(400)
+    person   = Person.get(id)
+    if person is None:
+        abort(404)
+    performlog = PerformLog.get(id, yymm, dd)
+    if performlog is None:
+        abort(404)
+    db.session.delete(performlog)
+    try:
+        db.session.commit()
+        flash('実績の削除ができました', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('実績削除時にエラーが発生しました "{}"'.format(e), 'danger')
+    return redirect(url_for('performlogs.index', id=id, yymm=yymm))
