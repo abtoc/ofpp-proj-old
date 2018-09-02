@@ -22,7 +22,8 @@ class UniqueIDM(object):
         if check:
             raise ValidationError(self.message)
 
-class PersonNewForm(FlaskForm):
+class PersonForm(FlaskForm):
+    id = HiddenField('id')
     name = StringField('名前', validators=[DataRequired(message='必須項目です')])
     display = StringField('表示名')
     idm = StringField('IDM', validators=[UniqueIDM(message='同一IDMが指定されています')])
@@ -32,9 +33,6 @@ class PersonNewForm(FlaskForm):
     amount = StringField('契約支給量')
     usestart = DateField('利用開始日', validators=[Optional()])
 
-class PersonEditForm(PersonNewForm):
-    id = HiddenField('id')
-
 @bp.route('/')
 def index():
     persons = Person.query.order_by(Person.name.asc()).all()
@@ -42,10 +40,11 @@ def index():
 
 @bp.route('/create', methods=('GET', 'POST'))
 def create():
-    form = PersonNewForm()
+    form = PersonForm()
     if form.validate_on_submit():
         person = Person()
         person.populate_form(form)
+        person.id = None
         db.session.add(person)
         try:
             db.session.commit()
@@ -61,7 +60,7 @@ def edit(id):
     person = Person.get(id)
     if person is None:
         abort(404)
-    form = PersonEditForm(obj=person)
+    form = PersonForm(obj=person)
     if form.validate_on_submit():
         person.populate_form(form)
         db.session.add(person)
