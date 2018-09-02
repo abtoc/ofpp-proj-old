@@ -3,9 +3,12 @@ extends performlogs/layout.pug
 block title
     | {{ item['name'] }} 実績編集 - ペタペタシステム
 block content
-    .form-group: label
-        | {{ item['name'] }}
-        | {{ item['yymmdd'] }}
+    .form-group
+        label 氏名
+        div {{ item['name'] }}
+    .form-group
+        label 日付
+        div {{ item['yymmdd'] }}
     form(method="POST")
         +generate_fields(form)
         .btn-group
