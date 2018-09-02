@@ -4,7 +4,7 @@ from wtforms import StringField, BooleanField, DateField, HiddenField, Validatio
 from wtforms.validators import DataRequired, Regexp, Optional
 from sqlalchemy import func
 from flaskr import app, db
-from flaskr.models import Person
+from flaskr.models import Person, PerformLog
 from flaskr.utils.validators import RegexpNotIf
 
 bp = Blueprint('persons', __name__, url_prefix='/persons')
@@ -79,6 +79,16 @@ def destroy(id):
     person = Person.get(id)
     if person is None:
         abort(404)
+    q = db.session.query(
+        func.count(PerformLog.yymm)
+    ).filter(
+        PerformLog.person_id==id
+    ).group_by(
+        PerformLog.person_id
+    ).first()
+    if q is not None:
+        flash('実績データが存在しているため削除できません','danger')
+        return redirect(url_for('persons.index'))
     db.session.delete(person)
     try:
         db.session.commit()
