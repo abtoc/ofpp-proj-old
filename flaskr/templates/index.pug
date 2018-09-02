@@ -15,4 +15,12 @@ block content
                     td(align="right")
                         .btn-group
                             if not item['staff']
-                                a.btn.btn-info(href="{{ url_for('index') }}") 実績記録
+                                .row: .btn-group
+                                    a.btn.btn-info(href="{{ url_for('index') }}") 実績記録
+                                    a.btn.btn-info(href="{{ url_for('index') }}") 当月実績記録票
+                                    a.btn.btn-info(href="{{ url_for('index') }}") 前月実績記録票
+                            .row: .btn-group
+                                a.btn.btn-info(href="{{ url_for('index') }}") 勤務記録
+                                a.btn.btn-info(href="{{ url_for('index') }}") 当月勤務記録票
+                                a.btn.btn-info(href="{{ url_for('index') }}") 前月勤務記録票
+ 
