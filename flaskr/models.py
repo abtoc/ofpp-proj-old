@@ -22,6 +22,10 @@ class Person(db.Model):
     usestart = db.Column(db.Date, nullable=True)        # 利用開始日
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)
+    def get_display(self):
+        if self.display is None:
+            return self.name
+        return self.display
     def get_usestart(self):
         if self.usetart is None:
             return None, None
@@ -35,6 +39,8 @@ class Person(db.Model):
         form.populate_obj(self)
         if (self.id is not None) and (len(self.id) == 0):
             self.id = None
+        if (self.display is not None) and (len(self.display) == 0):
+            self.display = None
         if (self.idm is not None) and (len(self.idm) == 0):
             self.idm = None
     @classmethod

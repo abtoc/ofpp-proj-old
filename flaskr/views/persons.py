@@ -23,7 +23,7 @@ class UniqueIDM(object):
 
 class PersonNewForm(FlaskForm):
     name = StringField('名前', validators=[DataRequired(message='必須項目です')])
-    display = StringField('表示名', validators=[DataRequired(message='必須項目です')])
+    display = StringField('表示名')
     idm = StringField('IDM', validators=[UniqueIDM(message='同一IDMが指定されています')])
     enabled = BooleanField('有効化', default='checked')
     number = StringField('受給者番号', validators=[Regexp(message='数字10桁で入力してください', regex='^[0-9]{10}$')])

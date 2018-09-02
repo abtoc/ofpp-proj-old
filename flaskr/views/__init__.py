@@ -12,7 +12,7 @@ def index():
     for person in persons:
         item = {}
         item['id'] = person.id
-        item['name'] = person.display
+        item['name'] = person.get_display()
         items.append(item)
     return render_template('index.pug', items=items)
 
