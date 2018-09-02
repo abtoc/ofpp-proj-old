@@ -2,6 +2,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from uuid import uuid4
 from wtforms import ValidationError
+from sqlalchemy import func
 from flaskr import db
 from flaskr.utils import is_zero_none
 
@@ -84,7 +85,19 @@ class PerformLog(db.Model):
     def validate(self):
         if self.absence:
             if is_zero_none(self.work_in) or is_zero_none(self.work_out):
-                raise ValidationError('開始・終了時刻が入っているため、欠席にはできません')        
+                raise ValidationError('開始・終了時刻が入っているため、欠席にはできません')
+            q = db.session.query(
+                func.count(PerformLog.absence)
+            ).filter(
+                PerformLog.person_id == self.person_id,
+                PerformLog.yymm == self.yymm,
+                PerformLog.absence == True
+            ).group_by(
+                PerformLog.person_id,
+                PerformLog.yymm
+            ).first()
+            if q[0] > 4:
+                raise ValidationError('欠席加算は４回までです')
     @classmethod
     def get(cls, id, yymm, dd):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()
