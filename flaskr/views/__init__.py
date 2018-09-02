@@ -19,3 +19,5 @@ def index():
 
 from flaskr.views import persons
 app.register_blueprint(persons.bp)
+from flaskr.views import performlogs
+app.register_blueprint(performlogs.bp)

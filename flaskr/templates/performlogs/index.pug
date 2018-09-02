@@ -1,0 +1,68 @@
+extends performlogs/layout.pug
+
+block title
+    | 勤務表 - ペタペタシステム
+block content
+    table.table.table-hover
+        thead
+            tr
+                th(colspan="4"): a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['prev']) }}") <<前月
+                th(colspan="2")= head['ym']
+                th(colspan="6")= head['name']
+                th(colspan="4"): .text-right: a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['next']) }}") 翌月>>
+            tr
+                th: .text-center 日
+                th: .text-center 曜日
+                th
+                th: .text-center 状況
+                th: .text-center 開始
+                th: .text-center 終了
+                th: .text-center 往
+                th: .text-center 複
+                th: .text-center 訪問
+                th: .text-center 食事
+                th: .text-center 医療
+                th: .text-center 体験
+                th: .text-center 施設外
+                th 備考
+                th
+        tbody
+            for item in items
+                tr
+                    td: .text-center= item['dd']
+                    td: .text-center= item['week']
+                    if item['enabled'] == None
+                        td
+                    elif item['enabled']
+                        td: .text-center ○
+                    else
+                        td: .text-center ×
+                    if item['absence']
+                        td: .text-center 欠席
+                    else
+                        td
+                    td: .text-center= item['work_in'] if item['work_in'] != None else ''
+                    td: .text-center= item['work_out'] if item['work_out'] != None else ''
+                    td: .text-center= item['pickup_in'] if item['pickup_in'] != None else ''
+                    td: .text-center= item['pickup_out'] if item['pickup_out'] != None else ''
+                    td: .text-center= item['visit'] if item['visit'] != None else ''
+                    td: .text-center= item['meal'] if item['meal'] != None else ''
+                    td: .text-center= item['medical'] if item['medical'] != None else ''
+                    td: .text-center= item['experience'] if item['experience'] != None else ''
+                    td: .text-center= item['outside'] if item['outside'] != None else ''
+                    td: .text-center= item['remark'] if item['remark'] != None else ''
+                    td: .text-right
+                        .btn-group
+                            a.btn.btn-sm.btn-primary(href="{{ url_for('index') }}") 編集
+                            a.btn.btn-sm.btn-danger(href="{{ url_for('index') }}") 削除
+        tfoot
+            tr
+                td(colspan="4"): .text-center 合計
+                td(colspan="2"): .text-center= foot['count']
+                td(colspan="2"): .text-center= foot['pickup']
+                td: .text-center= foot['visit']
+                td: .text-center= foot['meal']
+                td: .text-center= foot['medical']
+                td: .text-center= foot['experience']
+                td: .text-center= foot['outside']
+                td(colspan="2")

@@ -52,7 +52,7 @@ class Person(db.Model):
         return cls.query.filter(cls.idm == idm).first()
 
 # 実績記録表
-class PerformLogs(db.Model):
+class PerformLog(db.Model):
     __tablename__ = 'performlogs'
     person_id = db.Column(db.String(36), db.ForeignKey('persons.id'), primary_key=True) # 利用者ID
     yymm = db.Column(db.String(8), primary_key=True) # 年月
@@ -81,23 +81,13 @@ class PerformLogs(db.Model):
             self.pickup_in == None
         if (self.pickup_out is not None) and (len(self.pickup_out) == 0):
             self.work_out == None
-        if (self.visit is not None) and (len(self.visit) == 0):
-            self.visit == None
-        if (self.meal is not None) and (len(self.meal) == 0):
-            self.meal == None
-        if (self.medical is not None) and (len(self.medical) == 0):
-            self.medical == None
-        if (self.experience is not None) and (len(self.experience) == 0):
-            self.experience == None
-        if (self.outside is not None) and (len(self.outside) == 0):
-            self.outside == None
         if (self.remarks is not None) and (len(self.remarks) == 0):
             self.remarks == None
     @classmethod
     def get(cls, id, yymm, dd):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()
     @classmethod
-    def get_date(cls, yymmdd):
+    def get_date(cls, id, yymmdd):
         yymm = yymmdd.strftime('%Y%m')
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == yymmdd.day).first()
     @classmethod
