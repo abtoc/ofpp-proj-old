@@ -1,7 +1,9 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from uuid import uuid4
+from wtforms import ValidationError
 from flaskr import db
+from flaskr.utils import is_zero_none
 
 def _get_now():
     return datetime.now()
@@ -79,6 +81,10 @@ class PerformLog(db.Model):
             self.work_out == None
         if (self.remarks is not None) and (len(self.remarks) == 0):
             self.remarks == None
+    def validate(self):
+        if self.absence:
+            if is_zero_none(self.work_in) or is_zero_none(self.work_out):
+                raise ValidationError('開始・終了時刻が入っているため、欠席にはできません')        
     @classmethod
     def get(cls, id, yymm, dd):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()

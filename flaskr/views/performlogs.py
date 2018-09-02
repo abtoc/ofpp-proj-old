@@ -2,7 +2,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, abort
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, IntegerField
+from wtforms import StringField, BooleanField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db
 from flaskr.models import Person, PerformLog
@@ -132,14 +132,18 @@ def create(id, yymm, dd):
     if form.validate_on_submit():
         performlog = PerformLog(person_id=id, yymm=yymm, dd=dd)
         performlog.populate_form(form)
-        db.session.add(performlog)
         try:
-            db.session.commit()
-            flash('実績の追加ができました','success')
-            return redirect(url_for('performlogs.index', id=id, yymm=yymm))
-        except Exception as e:
-            db.session.rollback()
-            flash('実績追加時にエラーが発生しました "{}"'.format(e), 'danger')
+            performlog.validate()
+            db.session.add(performlog)
+            try:
+                db.session.commit()
+                flash('実績の追加ができました','success')
+                return redirect(url_for('performlogs.index', id=id, yymm=yymm))
+            except Exception as e:
+                db.session.rollback()
+                flash('実績追加時にエラーが発生しました "{}"'.format(e), 'danger')
+        except ValidationError as e:
+            flash(e, 'danger')
     return render_template('performlogs/edit.pug', form=form, item=item)
 
 @bp.route('/<id>/<yymm>/<dd>/edit', methods=('GET', 'POST'))
@@ -162,20 +166,18 @@ def edit(id, yymm, dd):
     form =  PerformLogsFormIDM(obj=performlog)
     if form.validate_on_submit():
         performlog.populate_form(form)
-        if bool(performlog.absence):
-            print(performlog.work_in)
-            print(performlog.work_out)
-            if (is_zero_none(performlog.work_in)) or (is_zero_none(performlog.work_out)):
-                flash('開始・終了時刻が入っているため、欠席にはできません', 'danger')
-                return render_template('performlogs/edit.pug', form=form, item=item)
-        db.session.add(performlog)
         try:
-            db.session.commit()
-            flash('実績の更新ができました','success')
-            return redirect(url_for('performlogs.index', id=id, yymm=yymm))
-        except Exception as e:
-            db.session.rollback()
-            flash('実績更新時にエラーが発生しました "{}"'.format(e), 'danger')
+            performlog.validate()
+            db.session.add(performlog)
+            try:
+                db.session.commit()
+                flash('実績の更新ができました','success')
+                return redirect(url_for('performlogs.index', id=id, yymm=yymm))
+            except Exception as e:
+                db.session.rollback()
+                flash('実績更新時にエラーが発生しました "{}"'.format(e), 'danger')
+        except ValidationError as e:
+            flash(e, 'danger')
     return render_template('performlogs/edit.pug', form=form, item=item)
 
 @bp.route('/<id>/<yymm>/<dd>/destroy')
