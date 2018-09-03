@@ -86,18 +86,40 @@ class PerformLog(db.Model):
         if self.absence:
             if is_zero_none(self.work_in) or is_zero_none(self.work_out):
                 raise ValidationError('開始・終了時刻が入っているため、欠席にはできません')
-            q = db.session.query(
-                func.count(PerformLog.absence)
-            ).filter(
-                PerformLog.person_id == self.person_id,
-                PerformLog.yymm == self.yymm,
-                PerformLog.absence == True
-            ).group_by(
-                PerformLog.person_id,
-                PerformLog.yymm
-            ).first()
-            if q[0] > 4:
-                raise ValidationError('欠席加算は４回までです')
+    @classmethod
+    def get(cls, id, yymm, dd):
+        return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()
+    @classmethod
+    def get_date(cls, id, yymmdd):
+        yymm = yymmdd.strftime('%Y%m')
+        return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == yymmdd.day).first()
+    @classmethod
+    def get_yymm(cls, id, yymm):
+        return cls.query.filter(cls.person_id == id, cls.yymm == yymm).all()
+
+# 勤怠記録表
+class WorkLog(db.Model):
+    __tablename__ = 'worklogs'
+    person_id = db.Column(db.String(36), db.ForeignKey('persons.id'), primary_key=True) # 利用者ID
+    yymm = db.Column(db.String(8), primary_key=True) # 年月
+    dd = db.Column(db.Integer, primary_key=True)     # 日
+    work_in  = db.Column(db.String(8))               # 開始時間
+    work_out = db.Column(db.String(8))               # 終了時間
+    value = db.Column(db.Float)                      # 勤務時間
+    break_t = db.Column(db.Float)                    # 休憩時間
+    over_t = db.Column(db.Float)                     # 残業時間
+    absence = db.Column(db.Boolean)                  # 欠勤
+    late = db.Column(db.Boolean)                     # 遅刻
+    leave = db.Column(db.Boolean)                    # 早退
+    remarks = db.Column(db.String(128))              # 備考
+    def populate_form(self,form):
+        form.populate_obj(self)
+        if (self.work_in is not None) and (len(self.work_in) == 0):
+            self.work_in == None
+        if (self.work_out is not None) and (len(self.work_out) == 0):
+            self.work_out == None
+        if (self.remarks is not None) and (len(self.remarks) == 0):
+            self.remarks == None
     @classmethod
     def get(cls, id, yymm, dd):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()

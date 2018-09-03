@@ -21,3 +21,5 @@ from flaskr.views import persons
 app.register_blueprint(persons.bp)
 from flaskr.views import performlogs
 app.register_blueprint(performlogs.bp)
+from flaskr.views import worklogs
+app.register_blueprint(worklogs.bp)

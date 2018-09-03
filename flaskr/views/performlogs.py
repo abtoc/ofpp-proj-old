@@ -6,6 +6,7 @@ from wtforms import StringField, BooleanField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db
 from flaskr.models import Person, PerformLog
+from flaskr.workers.worklogs import sync_worklog_from_performlog
 from flaskr.utils import weeka, is_zero_none
 
 bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')
@@ -137,6 +138,7 @@ def create(id, yymm, dd):
             db.session.add(performlog)
             try:
                 db.session.commit()
+                sync_worklog_from_performlog(id, yymm, dd)
                 flash('実績の追加ができました','success')
                 return redirect(url_for('performlogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -171,6 +173,7 @@ def edit(id, yymm, dd):
             db.session.add(performlog)
             try:
                 db.session.commit()
+                sync_worklog_from_performlog(id, yymm, dd)
                 flash('実績の更新ができました','success')
                 return redirect(url_for('performlogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -193,6 +196,7 @@ def destroy(id,yymm,dd):
     db.session.delete(performlog)
     try:
         db.session.commit()
+        sync_worklog_from_performlog(id, yymm, dd)
         flash('実績の削除ができました', 'success')
     except Exception as e:
         db.session.rollback()
