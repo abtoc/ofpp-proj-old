@@ -14,6 +14,8 @@ class WorkLogForm(FlaskForm):
     value = DecimalField('勤務時間', validators=[Optional()])
     break_t = DecimalField('休憩時間', validators=[Optional()])
     over_t = DecimalField('残業時間', validators=[Optional()])
+    late = BooleanField('遅刻')
+    leave = BooleanField('早退')
     remarks = StringField('備考')
 
 class WorkLogFormStaff(FlaskForm):
@@ -157,6 +159,7 @@ def edit(id, yymm, dd):
         yymm=yymm,
         name=person.get_display(),
         yymmdd=yymmdd.strftime('%Y/%m/%d(%a)'),
+        absence=worklog.absence,
         work_in=worklog.work_in if worklog.work_in is not None else '',
         work_out=worklog.work_out if worklog.work_out is not None else ''
     )

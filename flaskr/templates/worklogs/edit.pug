@@ -9,12 +9,16 @@ block content
     .form-group
         label 日付
         div {{ item['yymmdd'] }}
-    .form-group
-        label 開始時間
-        div {{ item['work_in']}}
-    .form-group
-        label 終了時間
-        div {{ item['work_out']}}
+    if item['absence']
+        .form-group
+            label 欠勤
+    else
+        .form-group
+            label 開始時間
+            div {{ item['work_in']}}
+        .form-group
+            label 終了時間
+            div {{ item['work_out']}}
     form(method="POST")
         +generate_fields(form)
         .btn-group
