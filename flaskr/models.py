@@ -63,7 +63,8 @@ class PerformLog(db.Model):
     yymm = db.Column(db.String(8), primary_key=True) # 年月
     dd = db.Column(db.Integer, primary_key=True)     # 日
     enabled = db.Column(db.Boolean)                  # 月の日数-8を超えたらFalse
-    absence = db.Column(db.Boolean, nullable=False)  # サービス利用状況(欠席加算)
+    absence = db.Column(db.Boolean, nullable=False)  # 欠席
+    absence_add = db.Column(db.Boolean, nullable=False) # 欠席加算対象
     work_in  = db.Column(db.String(8))               # 開始時間
     work_out = db.Column(db.String(8))               # 終了時間
     pickup_in  = db.Column(db.Integer)               # 送迎加算（往路）
@@ -88,6 +89,18 @@ class PerformLog(db.Model):
         if self.absence:
             if is_zero_none(self.work_in) or is_zero_none(self.work_out):
                 raise ValidationError('開始・終了時刻が入っているため、欠席にはできません')
+        if self.absence_add:
+            q = db.session.query(
+                func.count(PerformLog.absence_add)
+            ).filter(
+                PerformLog.person_id == self.person_id,
+                PerformLog.yymm == self.yymm
+            ).group_by(
+                PerformLog.person_id,
+                PerformLog.yymm
+            ).first()
+            if (q is not None) and (q[0] >= 4):
+                raise ValidationError('欠席加算がすでに４回です')
     @classmethod
     def get(cls, id, yymm, dd):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()
