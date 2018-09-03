@@ -90,6 +90,8 @@ class PerformLog(db.Model):
             if is_zero_none(self.work_in) or is_zero_none(self.work_out):
                 raise ValidationError('開始・終了時刻が入っているため、欠席にはできません')
         if self.absence_add:
+            if not self.absence:
+                raise ValidationError('欠席にチェックしてください')
             q = db.session.query(
                 func.count(PerformLog.absence_add)
             ).filter(
@@ -99,7 +101,7 @@ class PerformLog(db.Model):
                 PerformLog.person_id,
                 PerformLog.yymm
             ).first()
-            if (q is not None) and (q[0] >= 4):
+            if (q is not None) and (q[0] > 4):
                 raise ValidationError('欠席加算がすでに４回です')
     @classmethod
     def get(cls, id, yymm, dd):

@@ -38,7 +38,10 @@ block content
                     else
                         td: .text-center ×
                     if item['absence']
-                        td: .text-center 欠席
+                        if item['absence_add']:
+                            td: .text-center 欠席(加算)
+                        else
+                            td: .text-center 欠席
                     else
                         td
                     td: .text-center= item['work_in'] if item['work_in'] != None else ''

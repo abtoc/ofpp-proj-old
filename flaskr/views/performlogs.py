@@ -14,9 +14,9 @@ bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')
 
 class PerformLogsFormIDM(FlaskForm):
     absence = BooleanField('欠席')
+    absence_add = BooleanField('欠席加算')
     work_in = StringField('開始時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
     work_out = StringField('終了時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
-    absence_add = BooleanField('欠席加算')
     pickup_in = IntegerField('送迎加算（往路）', validators=[Optional()])
     pickup_out = IntegerField('送迎加算（復路）', validators=[Optional()])
     visit = IntegerField('訪問支援特別加算（時間数）', validators=[Optional()])
@@ -79,6 +79,7 @@ def index(id, yymm=None):
             edit=False,
             enabled=None,
             absence=False,
+            absence_add=False,
             work_in=None,
             work_out=None,
             pickup_in=None,
@@ -95,6 +96,7 @@ def index(id, yymm=None):
             item['edit'] = True
             item['enabled'] = performlog.enabled
             item['absence'] = performlog.absence
+            item['absence_add'] = performlog.absence_add
             item['work_in'] = performlog.work_in
             item['work_out'] = performlog.work_out
             item['pickup_in'] = performlog.pickup_in
