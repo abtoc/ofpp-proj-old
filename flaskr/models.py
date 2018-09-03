@@ -3,6 +3,8 @@ from dateutil.relativedelta import relativedelta
 from uuid import uuid4
 from wtforms import ValidationError
 from sqlalchemy import func
+from flask_login import UserMixin
+from werkzeug import check_password_hash, generate_password_hash
 from flaskr import db
 from flaskr.utils import is_zero_none
 
@@ -130,3 +132,28 @@ class WorkLog(db.Model):
     @classmethod
     def get_yymm(cls, id, yymm):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm).all()
+
+# ユーザ
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(db.String(36), primary_key=True, default=_get_uuid)
+    userid = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(100), nullable=False)
+    create_at = db.Column(db.DateTime, default=_get_now)
+    update_at = db.Column(db.DateTime, onupdate=_get_now)
+    def set_password(self, password):
+        if password:
+            password = password.strip()
+        self.password = generate_password_hash(password)
+    def check_password(self, password):
+        password = password.strip()
+        if not password:
+            return False
+        return check_password_hash(self.password, password)
+    @classmethod
+    def auth(cls, userid, password):
+        user = cls.query.filter(cls.userid==userid).first()
+        if user is None:
+            return None, False
+        return user, user.check_password(password)
+
