@@ -4,7 +4,6 @@ from flaskr.utils import is_zero_none
 
 def sync_worklog_from_performlog(id, yymm, dd):
     app.logger.info('Synchronize WorkLog from PerformLog. id={} yymm={} dd={}'.format(id,yymm,dd))
-    print('AAAA')
     person = Person.get(id)
     if person is None:
         return        

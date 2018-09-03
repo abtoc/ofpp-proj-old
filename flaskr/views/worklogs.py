@@ -151,13 +151,15 @@ def edit(id, yymm, dd):
     if person is None:
         abort(404)
     yymmdd = date(int(yymm[:4]), int(yymm[4:]), int(dd))
+    worklog = WorkLog.get(id, yymm, dd)
     item=dict(
         id=person.id,
         yymm=yymm,
         name=person.get_display(),
-        yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
+        yymmdd=yymmdd.strftime('%Y/%m/%d(%a)'),
+        work_in=worklog.work_in if worklog.work_in is not None else '',
+        work_out=worklog.work_out if worklog.work_out is not None else ''
     )
-    worklog = WorkLog.get(id, yymm, dd)
     if worklog is None:
         abort(404)
     if person.staff:

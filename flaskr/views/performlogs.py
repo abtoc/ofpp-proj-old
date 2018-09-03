@@ -8,6 +8,7 @@ from flaskr import app, db
 from flaskr.models import Person, PerformLog
 from flaskr.workers.worklogs import sync_worklog_from_performlog
 from flaskr.utils import weeka, is_zero_none
+from flaskr.workers.performlogs import update_performlogs_enabled
 
 bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')
 
@@ -109,7 +110,7 @@ def index(id, yymm=None):
                 foot['pickup'] = foot['pickup'] + (1 if item['pickup_out'] is not None else 0)
                 foot['visit'] = foot['visit'] + (1 if item['visit'] is not None else 0)
                 foot['meal'] = foot['meal'] + (1 if item['meal'] is not None else 0)
-                foot['experience'] = foot['meexperienceal'] + (1 if item['experience'] is not None else 0)
+                foot['experience'] = foot['experience'] + (1 if item['experience'] is not None else 0)
                 foot['outside'] = foot['outside'] + (1 if item['outside'] is not None else 0)
         items.append(item)
         first = first + relativedelta(days=1)
@@ -139,6 +140,7 @@ def create(id, yymm, dd):
             try:
                 db.session.commit()
                 sync_worklog_from_performlog(id, yymm, dd)
+                update_performlogs_enabled(id, yymm)
                 flash('実績の追加ができました','success')
                 return redirect(url_for('performlogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -174,6 +176,7 @@ def edit(id, yymm, dd):
             try:
                 db.session.commit()
                 sync_worklog_from_performlog(id, yymm, dd)
+                update_performlogs_enabled(id, yymm)
                 flash('実績の更新ができました','success')
                 return redirect(url_for('performlogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -197,6 +200,7 @@ def destroy(id,yymm,dd):
     try:
         db.session.commit()
         sync_worklog_from_performlog(id, yymm, dd)
+        update_performlogs_enabled(id, yymm)
         flash('実績の削除ができました', 'success')
     except Exception as e:
         db.session.rollback()
