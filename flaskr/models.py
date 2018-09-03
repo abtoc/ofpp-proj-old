@@ -26,6 +26,7 @@ class Person(db.Model):
     number = db.Column(db.String(10), nullable=True)    # 受給者番号（職員は不要）
     amount = db.Column(db.String(64), nullable=True)    # 契約支給量（職員は不要）
     usestart = db.Column(db.Date, nullable=True)        # 利用開始日
+    timerule_id = db.Column(db.String(36), db.ForeignKey('timerules.id')) # タイムテーブル
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)
     def get_display(self):
@@ -172,3 +173,16 @@ class User(db.Model, UserMixin):
             return None, False
         return user, user.check_password(password)
 
+# 時間ルールテーブル
+class TimeRule(db.Model):
+    __tablename__ = 'timerules'
+    id = db.Column(db.String(36), primary_key=True, default=_get_uuid)
+    caption = db.Column(db.String(64), nullable=False)  # 名前
+    rules = db.Column(db.Text)                          # ルール(JSON)
+    create_at = db.Column(db.DateTime, default=_get_now)
+    update_at = db.Column(db.DateTime, onupdate=_get_now)
+    def populate_form(self,form):
+        form.populate_obj(self)
+    @classmethod
+    def get(cls, id):
+        return cls.query.filter(cls.id == id).first()

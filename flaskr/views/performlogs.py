@@ -6,8 +6,8 @@ from wtforms import StringField, BooleanField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db
 from flaskr.models import Person, PerformLog
-from flaskr.workers.worklogs import sync_worklog_from_performlog
 from flaskr.utils import weeka, is_zero_none
+from flaskr.workers.worklogs import sync_worklog_from_performlog, update_worklog_value
 from flaskr.workers.performlogs import update_performlogs_enabled
 
 bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')

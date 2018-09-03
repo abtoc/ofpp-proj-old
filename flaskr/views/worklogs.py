@@ -7,6 +7,7 @@ from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db
 from flaskr.models import Person, WorkLog
 from flaskr.utils import weeka, is_zero_none
+from flaskr.workers.worklogs import update_worklog_value
 
 bp = Blueprint('worklogs', __name__, url_prefix='/worklogs')
 
@@ -69,7 +70,12 @@ def index(id, yymm=None):
     foot = dict(
         cnt=0,
         sum=0,
-        avg=0
+        avg=0,
+        break_t=0,
+        over_t=0,
+        absence=0,
+        late=0,
+        leave=0
     )
     items=[]
     while first < last:
@@ -102,7 +108,17 @@ def index(id, yymm=None):
             item['remarks'] = worklog.remarks
             if worklog.value is not None:
                 foot['cnt'] = foot['cnt'] + 1
-                foot['sum'] = worklog.value
+                foot['sum'] = foot['sum'] + worklog.value
+            if worklog.break_t is not None:
+                foot['break_t'] = foot['break_t'] + worklog.break_t
+            if worklog.over_t is not None:
+                foot['over_t'] = foot['over_t'] + worklog.over_t
+            if worklog.absence:
+               foot['absence'] = foot['absence'] + 1
+            if worklog.late:
+                foot['late'] = foot['late'] + 1
+            if worklog.leave:
+                foot['leave'] = foot['leave'] + 1
         if foot['cnt'] != 0:
             foot['avg'] = foot['sum'] / foot['cnt']
         else:
@@ -136,6 +152,8 @@ def create(id, yymm, dd):
             db.session.add(worklog)
             try:
                 db.session.commit()
+                if (person.staff) and (worklog.value is None):
+                    update_worklog_value(id, yymm, dd)
                 flash('勤怠の追加ができました','success')
                 return redirect(url_for('worklogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -175,6 +193,8 @@ def edit(id, yymm, dd):
             db.session.add(worklog)
             try:
                 db.session.commit()
+                if (person.staff) and (worklog.value is None):
+                    update_worklog_value(id, yymm, dd)
                 flash('勤怠の更新ができました','success')
                 return redirect(url_for('worklogs.index', id=id, yymm=yymm))
             except Exception as e:

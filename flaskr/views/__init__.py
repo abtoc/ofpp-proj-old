@@ -23,3 +23,5 @@ from flaskr.views import performlogs
 app.register_blueprint(performlogs.bp)
 from flaskr.views import worklogs
 app.register_blueprint(worklogs.bp)
+from flaskr.views import timerules
+app.register_blueprint(timerules.bp)

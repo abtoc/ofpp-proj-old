@@ -18,12 +18,13 @@ def update_performlogs_enabled(id, yymm):
     count = 0
     for performlog in performlogs:
         if bool(performlog.absence):
-            continue
-        count = count + 1
-        if count < last:
-            performlog.enabled = True
+            performlog.enabled = None
         else:
-            performlog.enabled = False
+            count = count + 1
+            if count < last:
+                performlog.enabled = True
+            else:
+                performlog.enabled = False
         db.session.add(performlog)
         try:
             db.session.commit()

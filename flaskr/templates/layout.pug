@@ -24,6 +24,11 @@ html(lang="ja")
                         li: a(href="{{ url_for('persons.index') }}") メンバー管理
                         li: a(href="{{ url_for('index') }}") メニュー２
                         li: a(href="{{ url_for('index') }}") メニュー３
+                        li.dropdown
+                            a.dropdown-toggle(data-toggle="dropdown",role="button") 設定
+                            ul.dropdown-menu(role="menu")
+                                li: a(href="{{ url_for('timerules.index') }}") タイムテーブル編集
+                                li: a(href="#") メニュー６
                     ul.nav.navbar-nav.navbar-right
                         block menu
                         li: a(href="{{ url_for('index') }}") コマンド

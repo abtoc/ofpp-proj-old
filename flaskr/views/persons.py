@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, abort
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, DateField, HiddenField, ValidationError
+from wtforms import StringField, BooleanField, DateField, HiddenField, SelectField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
 from sqlalchemy import func
 from flaskr import app, db
-from flaskr.models import Person, PerformLog, WorkLog
+from flaskr.models import Person, PerformLog, WorkLog, TimeRule
 from flaskr.utils.validators import RegexpNotIf
 
 bp = Blueprint('persons', __name__, url_prefix='/persons')
@@ -32,11 +32,28 @@ class PersonForm(FlaskForm):
     number = StringField('受給者番号', validators=[RegexpNotIf('staff', message='数字10桁で入力してください', regex='^[0-9]{10}$')])
     amount = StringField('契約支給量')
     usestart = DateField('利用開始日', validators=[Optional()])
+    timerule_id = SelectField('タイムテーブル', render_kw={'class': 'form-control'})
+    def __init__(self, *args, **kwargs):
+        super(PersonForm, self).__init__(*args, **kwargs)
+        self.timerule_id.choices = [(tr.id, tr.caption) for tr in TimeRule.query.order_by(TimeRule.caption).all()]
 
 @bp.route('/')
 def index():
     persons = Person.query.order_by(Person.name.asc()).all()
-    return render_template('persons/index.pug', persons=persons)
+    items = []
+    for person in persons:
+        timerule = TimeRule.get(person.timerule_id)
+        item = dict(
+            id=person.id,
+            enabled=person.enabled,
+            name=person.get_display(),
+            idm=person.idm,
+            timerule=timerule.caption if timerule is not None else '',
+            create_at=person.create_at.strftime('%Y/%m/%d %H:%M') if person.create_at is not None else '',
+            update_at=person.update_at.strftime('%Y/%m/%d %H:%M') if person.update_at is not None else ''
+        )
+        items.append(item)
+    return render_template('persons/index.pug', items=items)
 
 @bp.route('/create', methods=('GET', 'POST'))
 def create():

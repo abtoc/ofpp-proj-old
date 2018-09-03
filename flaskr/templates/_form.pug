@@ -1,21 +1,15 @@
 mixin generate_fields(form)
     for field in form
-        if (field.type == 'CSRFTokenField') or (field.type == 'HiddenField')
-            | {{ field }}
-        else
+        if (field.type != 'CSRFTokenField') and (field.type != 'HiddenField')
             if field.errors
                 .form-group.has-error {{ field.label }}
-                    if field.type in ('StringField', 'PasswordField', 'TextAreaField',"DecimalField","DateField","IntegerField")
-                         | {{ field(class='form-control') }}
-                    else
-                         | {{ field() }}
+                    | {{ field(class='form-control') }}
                     for error in field.errors
                         span.help-block= error
             else
                 .form-group=  field.label
-                    if field.type in ('StringField', 'PasswordField', 'TextAreaField',"DecimalField","DateField","IntegerField")
-                         | {{ field(class='form-control') }}
-                    else
-                         | {{ field() }}
+                    | {{ field(class='form-control') }}
                     for error in field.errors
                         span.help-block= error
+         else
+            | {{ field() }}
