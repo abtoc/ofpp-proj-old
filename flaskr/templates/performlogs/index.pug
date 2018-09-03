@@ -9,7 +9,8 @@ block content
                 th(colspan="4"): a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['prev']) }}") <<前月
                 th(colspan="2")= head['ym']
                 th(colspan="6")= head['name']
-                th(colspan="4"): .text-right: a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['next']) }}") 翌月>>
+                th(colspan="2"): .text-right: a(href="{{ url_for('worklogs.index', id=head['id'], yymm=head['yymm']) }}") 勤怠記録
+                th(colspan="1"): .text-right: a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['next']) }}") 翌月>>
             tr
                 th: .text-center 日
                 th: .text-center 曜日
