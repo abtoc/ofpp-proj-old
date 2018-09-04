@@ -93,17 +93,6 @@ class PerformLog(db.Model):
         if self.absence_add:
             if not self.absence:
                 raise ValidationError('欠席にチェックしてください')
-            q = db.session.query(
-                func.count(PerformLog.absence_add)
-            ).filter(
-                PerformLog.person_id == self.person_id,
-                PerformLog.yymm == self.yymm
-            ).group_by(
-                PerformLog.person_id,
-                PerformLog.yymm
-            ).first()
-            if (q is not None) and (q[0] > 4):
-                raise ValidationError('欠席加算がすでに４回です')
     @classmethod
     def get(cls, id, yymm, dd):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()
