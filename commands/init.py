@@ -1,3 +1,8 @@
+from traceback import print_exc
+from flask_script import Command
+from flaskr import db
+from flaskr.models import User, TimeRule
+
 default_rule_staff='''
 {
   "times": [
@@ -42,7 +47,33 @@ default_rule='''
    ],
   "core": { "start": 10.0, "end": 15.0, "value": 4.0 },
   "break": [
-    { "start": 12.0, "end": 13.0, "value": 1.0, }
+    { "start": 12.0, "end": 13.0, "value": 1.0 }
   ]
 }
 '''.strip()
+
+class InitCommand(Command):
+  def run(self):
+    print('Initialize Start')
+    print('Initialize Administrator')
+    user = User.query.filter(User.userid == 'admin').first()
+    if user is None:
+      user = User(userid='admin')
+      user.set_password('password')
+      db.session.add(user)
+    print('Initialize TimeRule Table')
+    timerule = TimeRule.query.filter(TimeRule.caption == '00:標準').first()
+    if timerule is None:
+      timerule = TimeRule(caption="00:標準", rules=default_rule)
+      db.session.add(timerule)
+    timerule = TimeRule.query.filter(TimeRule.caption == '10:職員').first()
+    if timerule is None:
+      timerule = TimeRule(caption="10:職員", rules=default_rule_staff)
+    db.session.add(timerule)
+    try:
+      db.session.commit()
+      print('Initialize End')
+    except Exception as e:
+      db.session.rollback()
+      print('Initialize Error {}'.format(e))
+      print_exc()
