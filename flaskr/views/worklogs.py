@@ -128,7 +128,7 @@ def index(id, yymm=None):
             foot['avg'] = 0
         items.append(item)
         first = first + relativedelta(days=1)
-    return render_template('worklogs/index.pug', head=head, items=items, foot=foot)
+    return render_template('worklogs/index.pug', id=id, yymm=yymm, head=head, items=items, foot=foot)
 
 @bp.route('/<id>/<yymm>/<dd>/create', methods=('GET', 'POST'))
 def create(id, yymm, dd):
@@ -164,7 +164,7 @@ def create(id, yymm, dd):
                 flash('勤怠追加時にエラーが発生しました "{}"'.format(e), 'danger')
         except ValidationError as e:
             flash(e, 'danger')
-    return render_template('worklogs/edit_staff.pug', form=form, head=item, item=item)
+    return render_template('worklogs/edit_staff.pug', id=id, yymm=yymm, form=form, item=item)
 
 @bp.route('/<id>/<yymm>/<dd>/edit', methods=('GET', 'POST'))
 def edit(id, yymm, dd):
@@ -209,8 +209,8 @@ def edit(id, yymm, dd):
         except ValidationError as e:
             flash(e, 'danger')
     if person.staff:
-        return render_template('worklogs/edit_staff.pug', form=form, item=item)
-    return render_template('worklogs/edit.pug', form=form, head=item, item=item)
+        return render_template('worklogs/edit_staff.pug', id=id, yymm=yymm, form=form, item=item)
+    return render_template('worklogs/edit.pug', id=id, yymm=yymm, form=form, item=item)
 
 @bp.route('/<id>/<yymm>/<dd>/destroy')
 def destroy(id,yymm,dd):

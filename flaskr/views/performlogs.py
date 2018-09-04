@@ -55,9 +55,7 @@ def index(id, yymm=None):
     last = first + relativedelta(months=1)
     prev = first - relativedelta(months=1)
     head = dict(
-        id=person.id,
         name=person.get_display(),
-        yymm=yymm,
         ym='{}年{}月'.format(first.year, first.month),
         prev=prev.strftime('%Y%m'),
         next=last.strftime('%Y%m')
@@ -118,7 +116,7 @@ def index(id, yymm=None):
                 foot['outside'] = foot['outside'] + (1 if item['outside'] is not None else 0)
         items.append(item)
         first = first + relativedelta(days=1)
-    return render_template('performlogs/index.pug', head=head, items=items, foot=foot)
+    return render_template('performlogs/index.pug', id=id, yymm=yymm, head=head, items=items, foot=foot)
 
 @bp.route('/<id>/<yymm>/<dd>/create', methods=('GET', 'POST'))
 def create(id, yymm, dd):
@@ -128,9 +126,7 @@ def create(id, yymm, dd):
     if person is None:
         abort(404)
     yymmdd = date(int(yymm[:4]), int(yymm[4:]), int(dd))
-    head=dict(
-        id=person.id,
-        yymm=yymm,
+    item=dict(
         name=person.get_display(),
         yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
     )
@@ -152,7 +148,7 @@ def create(id, yymm, dd):
                 flash('実績追加時にエラーが発生しました "{}"'.format(e), 'danger')
         except ValidationError as e:
             flash(e, 'danger')
-    return render_template('performlogs/edit.pug', form=form, head=head)
+    return render_template('performlogs/edit.pug', id=id, yymm=yymm, item=item, form=form)
 
 @bp.route('/<id>/<yymm>/<dd>/edit', methods=('GET', 'POST'))
 def edit(id, yymm, dd):
@@ -163,8 +159,6 @@ def edit(id, yymm, dd):
         abort(404)
     yymmdd = date(int(yymm[:4]), int(yymm[4:]), int(dd))
     item=dict(
-        id=person.id,
-        yymm=yymm,
         name=person.get_display(),
         yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
     )
@@ -188,7 +182,7 @@ def edit(id, yymm, dd):
                 flash('実績更新時にエラーが発生しました "{}"'.format(e), 'danger')
         except ValidationError as e:
             flash(e, 'danger')
-    return render_template('performlogs/edit.pug', form=form, head=head)
+    return render_template('performlogs/edit.pug', id=id, yymm=yymm, item=item, form=form)
 
 @bp.route('/<id>/<yymm>/<dd>/destroy')
 def destroy(id,yymm,dd):
