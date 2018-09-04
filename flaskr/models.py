@@ -175,3 +175,25 @@ class TimeRule(db.Model):
     @classmethod
     def get(cls, id):
         return cls.query.filter(cls.id == id).first()
+
+# オプション
+class Option(db.Model):
+    __tablename__ = 'options'
+    id = db.Column(db.String(32), primary_key=True, default=_get_uuid)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    value = db.Column(db.String(512), nullable=False)
+    create_at = db.Column(db.DateTime, default=_get_now)
+    update_at = db.Column(db.DateTime, onupdate=_get_now)
+    @classmethod
+    def get(cls,name,value):
+        opt = cls.query.filter_by(name=name).first()
+        if opt is None:
+            return value
+        return opt.value
+    @classmethod
+    def set(cls,name,value):
+        opt = cls.query.filter_by(name=name).first()
+        if opt is None:
+            opt = Option(name=name)
+        opt.value = value
+        db.session.add(opt)
