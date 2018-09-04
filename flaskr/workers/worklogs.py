@@ -57,6 +57,8 @@ def update_worklog_value(id, yymm, dd):
     if not bool(worklog.work_out):
         return
     timerule=TimeRule.get(person.timerule_id)
+    if timerule is None:
+        return
     rules=json.loads(timerule.rules)
     work_in = rules['core']['start']
     work_out = rules['core']['end']

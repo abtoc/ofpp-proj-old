@@ -9,5 +9,6 @@ app.jinja_env.add_extension('pypugjs.ext.jinja.PyPugJSExtension')
 db = SQLAlchemy(app)
 
 import flaskr.views
+import flaskr.api
 import flaskr.models
 

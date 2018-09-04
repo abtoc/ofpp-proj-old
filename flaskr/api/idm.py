@@ -1,0 +1,57 @@
+from datetime import datetime
+from flask import Blueprint
+from flask import jsonify
+from flaskr import db
+from flaskr.models import Person, WorkLog
+from flaskr.workers.worklogs import update_worklog_value
+from flaskr.workers.performlogs import sync_performlog_from_worklog
+
+bp = Blueprint('api_idm', __name__, url_prefix="/api/idm")
+
+@bp.route('/<idm>',methods=['GET'])
+def get_idm(idm):
+    person = Person.query.filter(Person.idm == idm).first()
+    if person is None:
+        return jsonify({"name": "該当者無し"}), 404
+    result = dict(
+        name=person.get_display()
+    )
+    return jsonify(result), 200
+
+@bp.route('/<idm>',methods=['POST'])
+def post_idm(idm):
+    person = Person.query.filter(Person.idm == idm).first()
+    if person is None:
+        return jsonify({"name": "該当者無し"}), 404
+    now = datetime.now()
+    yymm = now.strftime('%Y%m')
+    dd = now.day
+    hhmm = now.strftime('%H:%M')
+    worklog = WorkLog.get(person.id, yymm, dd)
+    if worklog is None:
+        worklog = WorkLog(person_id=person.id, yymm=yymm, dd=dd)
+    worklog.absence = False
+    if not bool(worklog.work_in):
+        worklog.work_in = hhmm
+    else:
+        worklog.work_out = hhmm
+    db.session.add(worklog)
+    try:
+        db.session.commit()
+        update_worklog_value(person.id, yymm, dd)
+        if not person.staff:
+            sync_performlog_from_worklog(person.id, yymm, dd)
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "{}".format(e)}), 500
+    if bool(worklog.work_out):
+        result = dict(
+            work_in = worklog.work_in,
+            work_out = worklog.work_out
+        )
+        return jsonify(result), 200
+    result = dict(
+        work_in = worklog.work_in,
+        work_out = '--:--'
+    )
+    return jsonify(result), 201
