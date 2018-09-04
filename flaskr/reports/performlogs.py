@@ -99,7 +99,7 @@ def make_items(id, yymm):
         if (performlog.experience is not None) and (performlog.experience != 0):
             item['experience'] = performlog.experience
             foot['experience'] = foot['experience'] + 1
-        if (performlog.outside is not None) and (performlog.outside is not None):
+        if (performlog.outside is not None) and (performlog.outside != 0):
             item['outside'] = performlog.outside
             foot['outside'] = foot['outside'] + 1
         if person.is_usestart(date(yy,mm,performlog.dd)):
