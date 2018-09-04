@@ -6,3 +6,4 @@ Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
 jsonschema==2.6.0
 pypugjs==5.7.1
+reportlab==3.5.6

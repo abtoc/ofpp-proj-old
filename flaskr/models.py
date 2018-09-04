@@ -34,9 +34,9 @@ class Person(db.Model):
             return self.name
         return self.display
     def get_usestart(self):
-        if self.usetart is None:
+        if self.usestart is None:
             return None, None
-        return  self.usestart, self.usetart + relativedelta(days=30)
+        return  self.usestart, self.usestart + relativedelta(days=30)
     def is_usestart(self, d):
         usestart, usestart30d = self.get_usestart()
         if usestart is None:

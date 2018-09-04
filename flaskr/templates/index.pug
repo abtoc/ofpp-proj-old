@@ -17,10 +17,10 @@ block content
                             if not item['staff']
                                 .row: .btn-group
                                     a.btn.btn-info(href="{{ url_for('performlogs.index', id=item['id']) }}") 実績記録
-                                    a.btn.btn-info(href="{{ url_for('index') }}") 当月実績記録票
-                                    a.btn.btn-info(href="{{ url_for('index') }}") 前月実績記録票
+                                    a.btn.btn-info(href="{{ url_for('report_performlogs.report', id=item['id'], yymm=item['yymm']) }}" target="_blank") 当月実績記録票
+                                    a.btn.btn-info(href="{{ url_for('report_performlogs.report', id=item['id'], yymm=item['yymm1']) }}" target="_blank") 前月実績記録票
                             .row: .btn-group
-                                a.btn.btn-info(href="{{ url_for('worklogs.index', id=item['id']) }}") 勤怠記録
+                                a.btn.btn-info(href="{{ url_for('worklogs.index', id=item['id'], yymm=item['yymm']) }}" target="_blank") 勤怠記録
                                 a.btn.btn-info(href="{{ url_for('index') }}") 当月勤怠記録票
                                 a.btn.btn-info(href="{{ url_for('index') }}") 前月勤怠記録票
  

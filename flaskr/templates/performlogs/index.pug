@@ -6,11 +6,11 @@ block content
     table.table.table-hover
         thead
             tr
-                th(colspan="4"): a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['prev']) }}") <<前月
+                th(colspan="4"): .hidden-print: a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['prev']) }}") <<前月
                 th(colspan="2")= head['ym']
                 th(colspan="6")= head['name']
-                th(colspan="2"): .text-right: a(href="{{ url_for('worklogs.index', id=head['id'], yymm=head['yymm']) }}") 勤怠記録
-                th(colspan="1"): .text-right: a(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['next']) }}") 翌月>>
+                th(colspan="2"): .text-right: .hidden-print: a(href="{{ url_for('worklogs.index', id=head['id'], yymm=head['yymm']) }}") 勤怠記録
+                th(colspan="1"): .text-right: .hidden-print: a.hidden-print(href="{{ url_for('performlogs.index', id=head['id'], yymm=head['next']) }}") 翌月>>
             tr
                 th: .text-center 日
                 th: .text-center 曜日
@@ -56,7 +56,7 @@ block content
                     td: .text-center= item['outside'] if item['outside'] != None else ''
                     td: .text-left= item['remarks'] if item['remarks'] != None else ''
                     td: .text-right
-                        .btn-group
+                        .hidden-print: .btn-group
                             if item['edit']
                                 a.btn.btn-sm.btn-primary(href="{{ url_for('performlogs.edit', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
                             else

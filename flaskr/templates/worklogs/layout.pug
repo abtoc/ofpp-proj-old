@@ -1,5 +1,5 @@
 extends layout.pug
 
 block menu
-    li: a(href="{{ url_for('index') }}") 印刷
+    li: a(href="{{ url_for('report_performlogs.report', id=item['id'], yymm=item['yymm']) }}") 印刷
     li: a(href="{{ url_for('index') }}") 一覧

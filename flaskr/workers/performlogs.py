@@ -49,7 +49,7 @@ def update_performlogs_enabled(id, yymm):
             performlog.enabled = None
         else:
             count = count + 1
-            if count < last:
+            if count <= last:
                 performlog.enabled = True
             else:
                 performlog.enabled = False

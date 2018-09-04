@@ -1,11 +1,13 @@
 from flask import render_template
 from datetime import date
+from dateutil.relativedelta import relativedelta
 from flaskr import app
 from flaskr.models import Person
 
 @app.route('/')
 def index():
     today = date.today()
+    prev = date.today() - relativedelta(months=1)
     yymm = today.strftime('%Y%m')
     items = []
     persons = Person.query.filter(Person.enabled==True).order_by(Person.staff.asc(), Person.name.asc()).all()
@@ -14,6 +16,8 @@ def index():
         item['id'] = person.id
         item['name'] = person.get_display()
         item['staff'] = person.staff
+        item['yymm'] = yymm
+        item['yymm1'] = prev.strftime('%Y%m')
         items.append(item)
     return render_template('index.pug', items=items)
 

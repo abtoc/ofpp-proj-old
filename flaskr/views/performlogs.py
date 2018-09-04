@@ -113,6 +113,7 @@ def index(id, yymm=None):
                 foot['pickup'] = foot['pickup'] + (1 if item['pickup_out'] is not None else 0)
                 foot['visit'] = foot['visit'] + (1 if item['visit'] is not None else 0)
                 foot['meal'] = foot['meal'] + (1 if item['meal'] is not None else 0)
+                foot['medical'] = foot['medical'] + (1 if item['medical'] is not None else 0)
                 foot['experience'] = foot['experience'] + (1 if item['experience'] is not None else 0)
                 foot['outside'] = foot['outside'] + (1 if item['outside'] is not None else 0)
         items.append(item)
@@ -127,7 +128,7 @@ def create(id, yymm, dd):
     if person is None:
         abort(404)
     yymmdd = date(int(yymm[:4]), int(yymm[4:]), int(dd))
-    item=dict(
+    head=dict(
         id=person.id,
         yymm=yymm,
         name=person.get_display(),
@@ -151,7 +152,7 @@ def create(id, yymm, dd):
                 flash('実績追加時にエラーが発生しました "{}"'.format(e), 'danger')
         except ValidationError as e:
             flash(e, 'danger')
-    return render_template('performlogs/edit.pug', form=form, item=item)
+    return render_template('performlogs/edit.pug', form=form, head=head)
 
 @bp.route('/<id>/<yymm>/<dd>/edit', methods=('GET', 'POST'))
 def edit(id, yymm, dd):
@@ -187,7 +188,7 @@ def edit(id, yymm, dd):
                 flash('実績更新時にエラーが発生しました "{}"'.format(e), 'danger')
         except ValidationError as e:
             flash(e, 'danger')
-    return render_template('performlogs/edit.pug', form=form, item=item)
+    return render_template('performlogs/edit.pug', form=form, head=head)
 
 @bp.route('/<id>/<yymm>/<dd>/destroy')
 def destroy(id,yymm,dd):
