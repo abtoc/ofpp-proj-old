@@ -19,6 +19,9 @@ class WorkLogForm(FlaskForm):
     leave = BooleanField('早退')
     remarks = StringField('備考')
 
+class WorkLogFormRemarks(FlaskForm):
+    remarks = StringField('備考')
+
 class WorkLogFormStaff(FlaskForm):
     work_in = StringField('開始時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
     work_out = StringField('終了時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
@@ -142,8 +145,8 @@ def create(id, yymm, dd):
         yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
     )
     if not person.staff:
-        flash('職員以外は勤怠登録はできません。実績登録で行ってください "{}"'.format(e), 'danger')
-        return redirect(url_for('performlogs.index', id=id, yymm=yymm))
+        flash('職員以外は勤怠登録はできません。実績登録で行ってください ', 'danger')
+        return redirect(url_for('worklogs.index', id=id, yymm=yymm))
     form =  WorkLogFormStaff()
     if form.validate_on_submit():
         worklog = WorkLog(person_id=id, yymm=yymm, dd=dd)
@@ -186,7 +189,10 @@ def edit(id, yymm, dd):
     if person.staff:
         form = WorkLogFormStaff(obj=worklog)
     else:
-        form = WorkLogForm(obj=worklog)
+        if worklog.absence:
+            form = WorkLogFormRemarks(obj=worklog)
+        else:
+            form = WorkLogForm(obj=worklog)
     if form.validate_on_submit():
         worklog.populate_form(form)
         try:

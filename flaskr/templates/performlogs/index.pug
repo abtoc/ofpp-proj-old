@@ -54,7 +54,7 @@ block content
                     td: .text-center= item['medical'] if item['medical'] != None else ''
                     td: .text-center= item['experience'] if item['experience']  != None else ''
                     td: .text-center= item['outside'] if item['outside'] != None else ''
-                    td: .text-center= item['remarks'] if item['remarks'] != None else ''
+                    td: .text-left= item['remarks'] if item['remarks'] != None else ''
                     td: .text-right
                         .btn-group
                             if item['edit']

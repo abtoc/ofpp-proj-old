@@ -39,17 +39,13 @@ block content
                     td: .text-center= '○' if item['absence'] else ''
                     td: .text-center= '○' if item['late'] else ''
                     td: .text-center= '○' if item['leave'] else ''
-                    td: .text-center= item['remarks'] if item['remarks'] != None else ''
+                    td: .text-left= item['remarks'] if item['remarks'] != None else ''
                     td: .text-right
                         .hidden-print: .btn-group
-                            if head['staff']:
-                                if item['edit']
-                                    a.btn.btn-sm.btn-primary(href="{{ url_for('worklogs.edit', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
-                                else
-                                    a.btn.btn-sm.btn-primary(href="{{ url_for('worklogs.create', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
-                            else
-                                if (not item['absence']) and (item['edit'])
-                                    a.btn.btn-sm.btn-primary(href="{{ url_for('worklogs.edit', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
+                            if item['edit']
+                                a.btn.btn-sm.btn-primary(href="{{ url_for('worklogs.edit', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
+                            elif head['staff']
+                                a.btn.btn-sm.btn-primary(href="{{ url_for('worklogs.create', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 編集
                             if head['staff']
                                 a.btn.btn-sm.btn-danger(href="{{ url_for('worklogs.destroy', id=head['id'], yymm=head['yymm'], dd=item['dd']) }}") 削除
         tfoot
