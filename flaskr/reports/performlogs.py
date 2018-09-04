@@ -140,7 +140,7 @@ def make_pdf(head, items, foot):
     table.wrapOn(p, xmargin, 252.0*mm)
     table.drawOn(p, xmargin, 252.0*mm)
     # Detail
-    colw = (8.6*mm,11.0*mm, 17.2*mm, 17.2*mm,  17.2*mm, 6.0*mm, 6.0*mm, 9.6*mm, 8.6*mm, 8.6*mm, 8.6*mm, 8.6*mm, 14.6*mm, 42.6*mm)
+    colw = (8.6*mm,11.0*mm, 17.2*mm, 17.2*mm,  17.2*mm, 6.0*mm, 6.0*mm, 9.6*mm, 8.6*mm, 8.6*mm, 8.6*mm, 8.6*mm, 14.6*mm, 42.2*mm)
     data = [
         ['日\n付', '曜\n日','サービス提供実績',    '', '' , '',  '',  '', '', '', '', '', '利用者\n確認印', '備考'],
         ['',       '',      'サービス提供\nの状況','開始時間', '終了時間', '送迎加算', '',   '訪問支援\n特別加算', '食事\n提供\n加算', '医療\n連携\n体制\n加算', '体験\n利用\n支援\n加算', '施設外\n支援'], 
@@ -201,7 +201,7 @@ def make_pdf(head, items, foot):
     table.wrapOn(p, xmargin, 32.0*mm)
     table.drawOn(p, xmargin, 32.0*mm)
     # Footer
-    colw = (36.8*mm, 34.2*mm, 12.0*mm, 9.6*mm, 8.6*mm, 8.6*mm, 8.6*mm, 13.6*mm, 9.0*mm, 26.2*mm, 17.2*mm)
+    colw = (36.8*mm, 34.2*mm, 12.0*mm, 9.6*mm, 8.6*mm, 8.6*mm, 8.6*mm, 13.6*mm, 9.0*mm, 26.2*mm, 16.7*mm)
     data = [
         [
             '合計', 
