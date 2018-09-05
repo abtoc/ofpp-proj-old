@@ -155,6 +155,8 @@ class User(db.Model, UserMixin):
         if not password:
             return False
         return check_password_hash(self.password, password)
+    def populate_form(self,form):
+        form.populate_obj(self)
     @classmethod
     def auth(cls, userid, password):
         user = cls.query.filter(cls.userid==userid).first()

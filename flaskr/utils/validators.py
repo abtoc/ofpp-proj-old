@@ -1,4 +1,4 @@
-from wtforms.validators import Required, Regexp
+from wtforms.validators import Required, Regexp, ValidationError
 
 class RequiredNotIf(Required):
     def __init__(self, other_field_name, *args, **kwargs):
@@ -21,3 +21,13 @@ class RegexpNotIf(Regexp):
             raise Exception('no field named "%s" in form' % self.other_field_name)
         if not bool(other_field.data):
             super(RegexpNotIf, self).__call__(form, field)
+
+class Unique(object):
+    def __init__(self, model, field, message='This element already exists.'):
+        self.model   = model
+        self.field   = field
+        self.message = message
+    def __call__(self, form, field):
+        check = self.model.query.filter(self.field == field.data).first()
+        if check:
+            raise ValidationError(self.message)
