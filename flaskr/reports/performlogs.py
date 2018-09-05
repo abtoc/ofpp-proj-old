@@ -7,7 +7,7 @@ from reportlab.platypus import Table
 from io import BytesIO
 from datetime import date
 from flaskr import db
-from flaskr.models import Person, PerformLog
+from flaskr.models import Person, PerformLog, Option
 from flaskr.utils import weeka
 
 bp = Blueprint('report_performlogs', __name__, url_prefix="/report/performlogs")
@@ -121,8 +121,8 @@ def make_pdf(head, items, foot):
     # Header
     colw = (25.0*mm, 29.5*mm, 32.0*mm, 32.0*mm, 22.0*mm, 43.5*mm)
     idm = head['idm']
-    number = '0000000000'
-    name = '○○事業所'
+    number = Option.get('office_number','')
+    name = Option.get('office_name',  '')
     data =[
         ['受給者証番号',head['number'],'支給決定障害者氏名',head['name'],'事業所番号',number],
         ['契約支給量',head['amount'],'','','事業者及び\nその事業所',name]

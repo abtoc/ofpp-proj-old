@@ -8,7 +8,7 @@ from io import BytesIO
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from flaskr import db
-from flaskr.models import Person, WorkLog
+from flaskr.models import Person, WorkLog, Option
 from flaskr.utils import weeka
 
 bp = Blueprint('report_worklogs', __name__, url_prefix="/report/worklogs")
@@ -88,7 +88,7 @@ def make_pdf(head, items, foot):
     xmargin = 15.0*mm
     p = canvas.Canvas(output, pagesize=psize, bottomup=True)
     # Title
-    name = '〇〇事業所'
+    name = Option.get('office_name',  '')
     colw = (45.5*mm, 20.5*mm, 24.5*mm, 22.5*mm, 30.5*mm, 27.5*mm)
     data = [[head['ym'],'出勤簿','氏名:',head['name'],'所属：',name]]
     table = Table(data, colWidths=colw, rowHeights=8.0*mm)
