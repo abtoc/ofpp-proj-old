@@ -21,8 +21,8 @@ html(lang="ja")
                     a.navbar-brand(href="{{ url_for('index') }}") ペタペタシステム
                 .collapse.navbar-collapse#bs-example-navbar-collapse-1
                     ul.nav.navbar-nav.navbar-left
-                        li: a(href="{{ url_for('index') }}") メニュー２
-                        li: a(href="{{ url_for('index') }}") メニュー３
+                        //li: a(href="{{ url_for('index') }}") メニュー２
+                        //li: a(href="{{ url_for('index') }}") メニュー３
                         li.dropdown
                             a.dropdown-toggle(data-toggle="dropdown",role="button") マスター管理
                             ul.dropdown-menu(role="menu")
@@ -35,7 +35,10 @@ html(lang="ja")
                                 li: a(href="{{ url_for('options.index') }}") 各種設定
                     ul.nav.navbar-nav.navbar-right
                         block menu
-                        li: a(href="{{ url_for('index') }}") コマンド
+                        if current_user.is_authenticated
+                            li: a(href="{{ url_for('auth.logout') }}") ログアウト
+                        else
+                            li: a(href="{{ url_for('auth.login') }}") ログイン
         .container
             for category, message in get_flashed_messages(with_categories=true)
                 div(class="alert alert-{{ category }}",role="alert")= message

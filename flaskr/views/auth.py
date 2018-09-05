@@ -1,4 +1,5 @@
-from flask import Blueprint
+from flask import Blueprint, render_template, redirect, request, url_for, flash
+from flask_login import login_user, logout_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
@@ -12,7 +13,7 @@ def load_user(id):
     return User.query.get(id)
 
 class LoginForm(FlaskForm):
-    userid = StringField('ログインID')
+    userid = StringField('ユーザID')
     password = PasswordField('パスワード')
 
 @bp.route('/login',methods=['GET','POST'])
@@ -30,6 +31,5 @@ def login():
 @bp.route('/logout')
 def logout():
     logout_user()
-    cache.set('idm', None, 5*60)
     return redirect(url_for('index'))
 
