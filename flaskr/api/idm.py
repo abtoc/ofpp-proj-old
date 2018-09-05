@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint
 from flask import jsonify
-from flaskr import db
+from flaskr import db, cache
 from flaskr.models import Person, WorkLog
 from flaskr.workers.worklogs import update_worklog_value
 from flaskr.workers.performlogs import sync_performlog_from_worklog
@@ -9,20 +9,24 @@ from flaskr.workers.performlogs import sync_performlog_from_worklog
 bp = Blueprint('api_idm', __name__, url_prefix="/api/idm")
 
 @bp.route('/<idm>',methods=['GET'])
-def get_idm(idm):
+def get(idm):
     person = Person.query.filter(Person.idm == idm).first()
     if person is None:
         return jsonify({"name": "該当者無し"}), 404
     result = dict(
         name=person.get_display()
     )
+    cache.set('person.id', person.id, timeout=10*60)
+    cache.set('person.idm', person.idm, timeout=10*60)
     return jsonify(result), 200
 
 @bp.route('/<idm>',methods=['POST'])
-def post_idm(idm):
+def post(idm):
     person = Person.query.filter(Person.idm == idm).first()
     if person is None:
         return jsonify({"name": "該当者無し"}), 404
+    cache.set('person.id', None)
+    cache.set('person.idm', None)
     now = datetime.now()
     yymm = now.strftime('%Y%m')
     dd = now.day
@@ -55,3 +59,9 @@ def post_idm(idm):
         work_out = '--:--'
     )
     return jsonify(result), 201
+
+@bp.route('/<idm>',methods=['DELETE'])
+def delete(idm):
+    cache.set('person.id', None)
+    cache.set('person.idm', None)
+    return jsonify({}), 200

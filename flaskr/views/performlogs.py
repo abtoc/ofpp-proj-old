@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, abort
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
-from flaskr import app, db
+from flaskr import app, db, cache
 from flaskr.models import Person, PerformLog
 from flaskr.utils import weeka, is_zero_none
 from flaskr.workers.worklogs import sync_worklog_from_performlog, update_worklog_value
@@ -17,6 +17,18 @@ class PerformLogsFormIDM(FlaskForm):
     absence_add = BooleanField('欠席加算')
     work_in = StringField('開始時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
     work_out = StringField('終了時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
+    pickup_in = IntegerField('送迎加算（往路）', validators=[Optional()])
+    pickup_out = IntegerField('送迎加算（復路）', validators=[Optional()])
+    visit = IntegerField('訪問支援特別加算（時間数）', validators=[Optional()])
+    meal = IntegerField('食事提供加算', validators=[Optional()])
+    medical = IntegerField('医療連携体制加算', validators=[Optional()])
+    experience = IntegerField('体験利用支援加算（初日ー５日目は１、６日目ー１５日目は2）', validators=[Optional()])
+    outside = IntegerField('施設外支援', validators=[Optional()])
+    remarks = StringField('備考')
+
+class PerformLogsForm(FlaskForm):
+    absence = BooleanField('欠席')
+    absence_add = BooleanField('欠席加算')
     pickup_in = IntegerField('送迎加算（往路）', validators=[Optional()])
     pickup_out = IntegerField('送迎加算（復路）', validators=[Optional()])
     visit = IntegerField('訪問支援特別加算（時間数）', validators=[Optional()])
@@ -75,6 +87,8 @@ def index(id, yymm=None):
             dd=first.day,
             week=weeka[first.weekday()],
             edit=False,
+            create=True,
+            delete=False,
             enabled=None,
             absence=False,
             absence_add=False,
@@ -90,8 +104,18 @@ def index(id, yymm=None):
             remarks=None
         )
         performlog = PerformLog.get_date(id, first)
-        if performlog is not None:
-            item['edit'] = True
+        if performlog is None:
+            item['create'] = True
+        else:
+            if cache.get('person.id') == id:
+                item['edit'] = True
+                item['delete'] = True
+            else:
+                if (not bool(performlog.work_in)) or (not bool(performlog.work_out)):
+                    item['edit'] = True
+                    item['delete'] = True
+                else:
+                    item['edit'] = True
             item['enabled'] = performlog.enabled
             item['absence'] = performlog.absence
             item['absence_add'] = performlog.absence_add
@@ -130,7 +154,10 @@ def create(id, yymm, dd):
         name=person.get_display(),
         yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
     )
-    form =  PerformLogsFormIDM()
+    if cache.get('person.id') == id:
+        form =  PerformLogsFormIDM()
+    else:
+        form =  PerformLogsForm()
     if form.validate_on_submit():
         performlog = PerformLog(person_id=id, yymm=yymm, dd=dd)
         performlog.populate_form(form)
@@ -165,7 +192,10 @@ def edit(id, yymm, dd):
     performlog = PerformLog.get(id, yymm, dd)
     if performlog is None:
         abort(404)
-    form =  PerformLogsFormIDM(obj=performlog)
+    if cache.get('person.id') == id:
+        form =  PerformLogsFormIDM(obj=performlog)
+    else:
+        form =  PerformLogsForm(obj=performlog)
     if form.validate_on_submit():
         performlog.populate_form(form)
         try:
@@ -188,6 +218,9 @@ def edit(id, yymm, dd):
 def destroy(id,yymm,dd):
     if (not _check_yymmdd(yymm,dd=dd)):
         abort(400)
+    if cache.get('person.id') != id:
+        flash('利用者のICカードをセットしてください', 'danger')
+        return redirect(url_for('performlogs.index', id=id, yymm=yymm))
     person   = Person.get(id)
     if person is None:
         abort(404)

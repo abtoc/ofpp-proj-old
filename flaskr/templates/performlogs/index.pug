@@ -55,13 +55,14 @@ block content
                     td: .text-center= item['experience'] if item['experience']  != None else ''
                     td: .text-center= item['outside'] if item['outside'] != None else ''
                     td: .text-left= item['remarks'] if item['remarks'] != None else ''
-                    td: .text-right
+                    td: .text-left
                         .hidden-print: .btn-group
                             if item['edit']
                                 a.btn.btn-sm.btn-primary(href="{{ url_for('performlogs.edit', id=id, yymm=yymm, dd=item['dd']) }}") 編集
-                            else
+                            elif item['create']
                                 a.btn.btn-sm.btn-primary(href="{{ url_for('performlogs.create', id=id, yymm=yymm, dd=item['dd']) }}") 編集
-                            a.btn.btn-sm.btn-danger(href="{{ url_for('performlogs.destroy', id=id, yymm=yymm, dd=item['dd']) }}") 削除
+                            if item['delete']
+                                a.btn.btn-sm.btn-danger(href="{{ url_for('performlogs.destroy', id=id, yymm=yymm, dd=item['dd']) }}") 削除
         tfoot
             tr
                 td(colspan="4"): .text-center 合計

@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
-from flaskr import db, lm
+from flaskr import db, lm, cache
 from flaskr.models import User
 
 bp = Blueprint('auth', __name__, url_prefix="/auth")
@@ -30,6 +30,8 @@ def login():
 
 @bp.route('/logout')
 def logout():
+    cache.set('person.id', None)
+    cache.set('person.idm', None)
     logout_user()
     return redirect(url_for('index'))
 
