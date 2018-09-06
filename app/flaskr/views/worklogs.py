@@ -1,6 +1,7 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, abort
+from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, DecimalField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
@@ -131,6 +132,7 @@ def index(id, yymm=None):
     return render_template('worklogs/index.pug', id=id, yymm=yymm, head=head, items=items, foot=foot)
 
 @bp.route('/<id>/<yymm>/<dd>/create', methods=('GET', 'POST'))
+@login_required
 def create(id, yymm, dd):
     if (not _check_yymmdd(yymm,dd=dd)):
         abort(400)
@@ -167,6 +169,7 @@ def create(id, yymm, dd):
     return render_template('worklogs/edit_staff.pug', id=id, yymm=yymm, form=form, item=item)
 
 @bp.route('/<id>/<yymm>/<dd>/edit', methods=('GET', 'POST'))
+@login_required
 def edit(id, yymm, dd):
     if (not _check_yymmdd(yymm,dd=dd)):
         abort(400)
@@ -213,6 +216,7 @@ def edit(id, yymm, dd):
     return render_template('worklogs/edit.pug', id=id, yymm=yymm, form=form, item=item)
 
 @bp.route('/<id>/<yymm>/<dd>/destroy')
+@login_required
 def destroy(id,yymm,dd):
     if (not _check_yymmdd(yymm,dd=dd)):
         abort(400)

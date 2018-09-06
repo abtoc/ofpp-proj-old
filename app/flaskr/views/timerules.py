@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, abort
+from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField
 from wtforms.validators import DataRequired, ValidationError
@@ -74,11 +75,13 @@ class TimeRuleForm(FlaskForm):
             raise ValidationError(e)
         
 @bp.route('/')
+@login_required
 def index():
     timerules = TimeRule.query.order_by(TimeRule.caption.asc()).all()
     return render_template('timerules/index.pug', timerules=timerules)
 
 @bp.route('/create', methods=('GET', 'POST'))
+@login_required
 def create():
     form = TimeRuleForm()
     if form.validate_on_submit():
@@ -95,6 +98,7 @@ def create():
     return render_template('timerules/edit.pug', form=form)
 
 @bp.route('/<id>/edit', methods=('GET', 'POST'))
+@login_required
 def edit(id):
     timerule = TimeRule.get(id)
     if timerule is None:
@@ -113,6 +117,7 @@ def edit(id):
     return render_template('timerules/edit.pug', form=form)
 
 @bp.route('/<id>/destroy', methods=('GET', 'POST'))
+@login_required
 def destroy(id):
     timerule = TimeRule.get(id)
     if timerule is None:

@@ -1,4 +1,5 @@
 from flask import Blueprint
+from flask_login import login_required
 from flask import render_template, redirect, flash, abort, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
@@ -28,11 +29,13 @@ class UsersPasswordForm(FlaskForm):
     confirm = PasswordField('パスワード再入力')
 
 @bp.route('/')
+@login_required
 def index():
     users = User.query.all()
     return render_template('users/index.pug', users=users)
 
 @bp.route('/create', methods=('GET','POST'))
+@login_required
 def create():
     form = UsersNewForm()
     if form.validate_on_submit():
@@ -50,6 +53,7 @@ def create():
     return render_template('users/edit.pug', form=form)
 
 @bp.route('/<id>/destroy', methods=('GET','POST'))
+@login_required
 def destroy(id):
     user = User.query.get(id)
     if user is None:

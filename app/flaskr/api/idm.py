@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint
 from flask import jsonify
-from flaskr import db, cache
+from flaskr import db, cache, auth
 from flaskr.models import Person, WorkLog
 from flaskr.workers.worklogs import update_worklog_value
 from flaskr.workers.performlogs import sync_performlog_from_worklog
@@ -9,6 +9,7 @@ from flaskr.workers.performlogs import sync_performlog_from_worklog
 bp = Blueprint('api_idm', __name__, url_prefix="/api/idm")
 
 @bp.route('/<idm>',methods=['GET'])
+@auth.login_required
 def get(idm):
     person = Person.query.filter(Person.idm == idm).first()
     if person is None:
@@ -21,6 +22,7 @@ def get(idm):
     return jsonify(result), 200
 
 @bp.route('/<idm>',methods=['POST'])
+@auth.login_required
 def post(idm):
     person = Person.query.filter(Person.idm == idm).first()
     if person is None:
@@ -61,6 +63,7 @@ def post(idm):
     return jsonify(result), 201
 
 @bp.route('/<idm>',methods=['DELETE'])
+@auth.login_required
 def delete(idm):
     cache.set('person.id', None)
     cache.set('person.idm', None)

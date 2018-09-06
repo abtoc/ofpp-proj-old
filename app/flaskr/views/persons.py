@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, abort
+from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, DateField, HiddenField, SelectField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
@@ -38,6 +39,7 @@ class PersonForm(FlaskForm):
         self.timerule_id.choices = [(tr.id, tr.caption) for tr in TimeRule.query.order_by(TimeRule.caption).all()]
 
 @bp.route('/')
+@login_required
 def index():
     persons = Person.query.order_by(Person.name.asc()).all()
     items = []
@@ -56,6 +58,7 @@ def index():
     return render_template('persons/index.pug', items=items)
 
 @bp.route('/create', methods=('GET', 'POST'))
+@login_required
 def create():
     form = PersonForm()
     if form.validate_on_submit():
@@ -73,6 +76,7 @@ def create():
     return render_template('persons/edit.pug', form=form)
 
 @bp.route('/<id>/edit', methods=('GET', 'POST'))
+@login_required
 def edit(id):
     person = Person.get(id)
     if person is None:
@@ -91,6 +95,7 @@ def edit(id):
     return render_template('persons/edit.pug', form=form)
 
 @bp.route('/<id>/destroy', methods=('GET', 'POST'))
+@login_required
 def destroy(id):
     person = Person.get(id)
     if person is None:
@@ -123,4 +128,3 @@ def destroy(id):
         db.session.rollback()
         flash('メンバー削除時にエラーが発生しました "{}"'.format(e), 'danger')
     return redirect(url_for('persons.index'))
-        

@@ -1,5 +1,6 @@
 from flask import Blueprint, flash
 from flask import render_template, redirect, url_for
+from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import DataRequired, Regexp
@@ -13,6 +14,7 @@ class OptionForm(FlaskForm):
     office_name = StringField('事業所番号', validators=[DataRequired(message='必須入力です')])
 
 @bp.route('/', methods=('GET','POST'))
+@login_required
 def index():
     form = OptionForm()
     if form.validate_on_submit():
