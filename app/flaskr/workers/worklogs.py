@@ -1,8 +1,9 @@
-from flaskr import app, db
+from flaskr import app, db, celery
 from flaskr.models import Person, PerformLog, WorkLog, TimeRule
 from flaskr.utils import is_zero_none
 import json
 
+@celery.task
 def sync_worklog_from_performlog(id, yymm, dd):
     app.logger.info('Synchronize WorkLog from PerformLog. id={} yymm={} dd={}'.format(id,yymm,dd))
     person = Person.get(id)
@@ -37,11 +38,12 @@ def sync_worklog_from_performlog(id, yymm, dd):
     db.session.add(worklog)
     try:
         db.session.commit()
-        update_worklog_value(id, yymm, dd)
+        update_worklog_value.delay(id, yymm, dd)
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)
 
+@celery.task
 def update_worklog_value(id, yymm, dd):
     app.logger.info('Update WorkLog value from Time-Table. id={} yymm={} dd={}'.format(id,yymm,dd))
     person = Person.get(id)

@@ -44,9 +44,9 @@ def post(idm):
     db.session.add(worklog)
     try:
         db.session.commit()
-        update_worklog_value(person.id, yymm, dd)
+        update_worklog_value.delay(person.id, yymm, dd)
         if not person.staff:
-            sync_performlog_from_worklog(person.id, yymm, dd)
+            sync_performlog_from_worklog.delay(person.id, yymm, dd)
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": "{}".format(e)}), 500

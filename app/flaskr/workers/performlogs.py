@@ -1,9 +1,10 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from flaskr import app, db
+from flaskr import app, db, celery
 from flaskr.models import Person, PerformLog, WorkLog
 from flaskr.utils import is_zero_none
 
+@celery.task
 def sync_performlog_from_worklog(id, yymm, dd):
     app.logger.info('Synchronize PerformLog from WorkLog. id={} yymm={} dd={}'.format(id,yymm,dd))
     person = Person.get(id)
@@ -27,11 +28,12 @@ def sync_performlog_from_worklog(id, yymm, dd):
     db.session.add(performlog)
     try:
         db.session.commit()
-        update_performlogs_enabled(id, yymm)
+        update_performlogs_enabled.delay(id, yymm)
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)
 
+@celery.task
 def update_performlogs_enabled(id, yymm):
     app.logger.info('Update PerformLogs enabled. id={} yymm={}'.format(id,yymm))
     person = Person.get(id)

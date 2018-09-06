@@ -158,7 +158,7 @@ def create(id, yymm, dd):
             try:
                 db.session.commit()
                 if (person.staff) and (worklog.value is None):
-                    update_worklog_value(id, yymm, dd)
+                    update_worklog_value.delay(id, yymm, dd)
                 flash('勤怠の追加ができました','success')
                 return redirect(url_for('worklogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -203,7 +203,7 @@ def edit(id, yymm, dd):
             try:
                 db.session.commit()
                 if (person.staff) and (worklog.value is None):
-                    update_worklog_value(id, yymm, dd)
+                    update_worklog_value.delay(id, yymm, dd)
                 flash('勤怠の更新ができました','success')
                 return redirect(url_for('worklogs.index', id=id, yymm=yymm))
             except Exception as e:
