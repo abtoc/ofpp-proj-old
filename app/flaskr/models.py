@@ -66,6 +66,9 @@ class PerformLog(db.Model):
     enabled = db.Column(db.Boolean)                  # 月の日数-8を超えたらFalse
     absence = db.Column(db.Boolean, nullable=False)  # 欠席
     absence_add = db.Column(db.Boolean, nullable=False) # 欠席加算対象
+    absence_staff = db.Column(db.String(32))         # 欠席対応職員
+    absence_reason = db.Column(db.String(64))        # 欠席理由
+    absence_consultation = db.Column(db.String(128)) # 欠席相談援助
     work_in  = db.Column(db.String(8))               # 開始時間
     work_out = db.Column(db.String(8))               # 終了時間
     pickup_in  = db.Column(db.Integer)               # 送迎加算（往路）
