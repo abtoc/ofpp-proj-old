@@ -63,3 +63,5 @@ from flaskr.views import users
 app.register_blueprint(users.bp)
 from flaskr.views import auth
 app.register_blueprint(auth.bp)
+from flaskr.views import staffs
+app.register_blueprint(staffs.bp)

@@ -8,7 +8,7 @@ from flaskr import app, db
 from flaskr.models import Person, PerformLog, WorkLog, TimeRule
 from flaskr.utils.validators import UniqueIDM
 
-bp = Blueprint('persons', __name__, url_prefix='/persons')
+bp = Blueprint('staffs', __name__, url_prefix='/staffs')
 
 class PersonForm(FlaskForm):
     id = HiddenField('id')
@@ -16,10 +16,6 @@ class PersonForm(FlaskForm):
     display = StringField('表示名')
     idm = StringField('IDM', validators=[UniqueIDM(message='同一IDMが指定されています')])
     enabled = BooleanField('有効化', default='checked')
-    #staff = BooleanField('職員')
-    number = StringField('受給者番号', validators=[Regexp(message='数字10桁で入力してください', regex='^[0-9]{10}$')])
-    amount = StringField('契約支給量')
-    usestart = DateField('利用開始日', validators=[Optional()])
     timerule_id = SelectField('タイムテーブル', render_kw={'class': 'form-control'})
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
@@ -28,7 +24,7 @@ class PersonForm(FlaskForm):
 @bp.route('/')
 @login_required
 def index():
-    persons = Person.query.filter(Person.staff == False).order_by(Person.name.asc()).all()
+    persons = Person.query.filter(Person.staff == True).order_by(Person.name.asc()).all()
     items = []
     for person in persons:
         timerule = TimeRule.get(person.timerule_id)
@@ -42,7 +38,7 @@ def index():
             update_at=person.update_at.strftime('%Y/%m/%d %H:%M') if person.update_at is not None else ''
         )
         items.append(item)
-    return render_template('persons/index.pug', items=items)
+    return render_template('staffs/index.pug', items=items)
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
@@ -52,16 +48,16 @@ def create():
         person = Person()
         person.populate_form(form)
         person.id = None
-        person.staff = False
+        person.staff = True
         db.session.add(person)
         try:
             db.session.commit()
-            flash('メンバーの追加ができました', 'success')
-            return redirect(url_for('persons.index'))
+            flash('職員の追加ができました', 'success')
+            return redirect(url_for('staffs.index'))
         except Exception as e:
             db.session.rollback()
-            flash('メンバー追加時にエラーが発生しました "{}"'.format(e), 'danger')
-    return render_template('persons/edit.pug', form=form)
+            flash('職員追加時にエラーが発生しました "{}"'.format(e), 'danger')
+    return render_template('staffs/edit.pug', form=form)
 
 @bp.route('/<id>/edit', methods=('GET', 'POST'))
 @login_required
@@ -75,12 +71,12 @@ def edit(id):
         db.session.add(person)
         try:
             db.session.commit()
-            flash('メンバーの更新ができました', 'success')
-            return redirect(url_for('persons.index'))
+            flash('職員の更新ができました', 'success')
+            return redirect(url_for('staffs.index'))
         except Exception as e:
             db.session.rollback()
-            flash('メンバー更新時にエラーが発生しました "{}"'.format(e), 'danger')
-    return render_template('persons/edit.pug', form=form)
+            flash('職員更新時にエラーが発生しました "{}"'.format(e), 'danger')
+    return render_template('staffs/edit.pug', form=form)
 
 @bp.route('/<id>/destroy', methods=('GET', 'POST'))
 @login_required
@@ -88,16 +84,6 @@ def destroy(id):
     person = Person.get(id)
     if person is None:
         abort(404)
-    q = db.session.query(
-        func.count(PerformLog.yymm)
-    ).filter(
-        PerformLog.person_id==id
-    ).group_by(
-        PerformLog.person_id
-    ).first()
-    if q is not None:
-        flash('実績データが存在しているため削除できません','danger')
-        return redirect(url_for('persons.index'))
     q = db.session.query(
         func.count(WorkLog.yymm)
     ).filter(
@@ -107,12 +93,12 @@ def destroy(id):
     ).first()
     if q is not None:
         flash('勤怠データが存在しているため削除できません','danger')
-        return redirect(url_for('persons.index'))
+        return redirect(url_for('staffs.index'))
     db.session.delete(person)
     try:
         db.session.commit()
-        flash('メンバーの削除ができました', 'success')
+        flash('職員の削除ができました', 'success')
     except Exception as e:
         db.session.rollback()
-        flash('メンバー削除時にエラーが発生しました "{}"'.format(e), 'danger')
-    return redirect(url_for('persons.index'))
+        flash('職員削除時にエラーが発生しました "{}"'.format(e), 'danger')
+    return redirect(url_for('staffs.index'))

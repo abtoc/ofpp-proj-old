@@ -27,6 +27,7 @@ html(lang="ja")
                             a.dropdown-toggle(data-toggle="dropdown",role="button") マスター管理
                             ul.dropdown-menu(role="menu")
                                 li: a(href="{{ url_for('persons.index') }}") 利用者管理
+                                li: a(href="{{ url_for('staffs.index') }}") 職員管理
                                 li: a(href="{{ url_for('users.index') }}") ユーザ管理
                         li.dropdown
                             a.dropdown-toggle(data-toggle="dropdown",role="button") 設定
