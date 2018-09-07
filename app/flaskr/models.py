@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from uuid import uuid4
 from wtforms import ValidationError
@@ -28,6 +28,7 @@ class Person(db.Model):
     timerule_id = db.Column(db.String(36), db.ForeignKey('timerules.id')) # タイムテーブル
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)
+    recipient = db.relationship('Recipient', uselist=False, back_populates="person")
     def get_display(self):
         if self.display is None:
             return self.name
@@ -59,6 +60,36 @@ class Person(db.Model):
     @classmethod
     def get_idm(cls, idm):
         return cls.query.filter(cls.idm == idm).first()
+
+# 受給者証テーブル
+class Recipient(db.Model):
+    __tablename__ = 'recipients'
+    person_id = db.Column(db.String(36), db.ForeignKey('persons.id',onupdate='CASCADE', ondelete='CASCADE'), primary_key=True) # 利用者ID
+    number = db.Column(db.String(10), nullable=True)    # 受給者番号
+    amount = db.Column(db.String(64), nullable=True)    # 契約支給量
+    usestart = db.Column(db.Date, nullable=True)        # 利用開始日
+    supply_in = db.Column(db.Date, nullable=True)       # 支給決定開始日
+    supply_out = db.Column(db.Date, nullable=True)      # 支給決定終了日
+    apply_in = db.Column(db.Date, nullable=True)        # 適用決定開始日
+    apply_out = db.Column(db.Date, nullable=True)       # 適用決定終了日
+    create_at = db.Column(db.DateTime, default=_get_now)
+    update_at = db.Column(db.DateTime, onupdate=_get_now)
+    person = db.relationship('Person', back_populates="recipient")
+    def is_apply_over(self, yymmdd=None):
+        if yymmdd is None:
+            yymmdd = date.today()
+        yymmdd = yymmdd + relativedelta(months=1)
+        return self.apply_out < yymmdd
+    def is_supply_over(self, yymmdd=None):
+        if yymmdd is None:
+            yymmdd = date.today()
+        yymmdd = yymmdd + relativedelta(months=1)
+        return self.supply_out < yymmdd
+    def populate_form(self,form):
+        form.populate_obj(self)
+    @classmethod
+    def get(cls, id):
+        return cls.query.filter(cls.person_id == id).first()
 
 # 実績記録表
 class PerformLog(db.Model):

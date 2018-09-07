@@ -23,8 +23,8 @@ def make_head(id, yymm):
     head['gm'] = '平成{}年{}月分'.format(gg,mm)
     head['name'] = person.name
     head['idm'] = person.idm
-    head['number'] = person.number
-    head['amount'] = person.amount
+    head['number'] = person.recipient.number
+    head['amount'] = person.recipient.amount
     head['usestart'] = ''
     head['usestart30d'] = ''
     usestart, usestart30d = person.get_usestart()

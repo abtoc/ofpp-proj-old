@@ -1,0 +1,29 @@
+doctype html
+html(lang="ja")
+    head
+        meta(charset="utf-8")
+        meta(http-equiv="X-UA-Compatible" content="IE=edge")
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+        title サブフォームテスト
+        link(rel="stylesheet" href="../app/flaskr/static/bootstrap.min.css")
+        script(src="../app/flaskr/static/jquery.min.js")
+        script(src="../app/flaskr/static/bootstrap.min.js")
+    body
+        .container
+            form(action="")
+                .form-group
+                    label テスト１
+                    input.form-control(type="text")
+                .form-group
+                    label テスト２
+                    table
+                        tbody
+                            tr
+                                th: label テスト２１
+                                td: input(type="text")
+                            tr
+                                th: label テスト２２
+                                td: input(type="text")
+                .btn-group
+                    input.btn.btn-success(type="submit" value="保存")
+                    a.btn.btn-danger(href="#") キャンセル

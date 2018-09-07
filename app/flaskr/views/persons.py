@@ -5,7 +5,7 @@ from wtforms import StringField, BooleanField, DateField, HiddenField, SelectFie
 from wtforms.validators import DataRequired, Regexp, Optional
 from sqlalchemy import func
 from flaskr import app, db
-from flaskr.models import Person, PerformLog, WorkLog, TimeRule
+from flaskr.models import Person, PerformLog, WorkLog, TimeRule, Recipient
 from flaskr.utils.validators import UniqueIDM
 
 bp = Blueprint('persons', __name__, url_prefix='/persons')
@@ -16,10 +16,6 @@ class PersonForm(FlaskForm):
     display = StringField('表示名')
     idm = StringField('IDM', validators=[UniqueIDM(message='同一IDMが指定されています')])
     enabled = BooleanField('有効化', default='checked')
-    #staff = BooleanField('職員')
-    number = StringField('受給者番号', validators=[Regexp(message='数字10桁で入力してください', regex='^[0-9]{10}$')])
-    amount = StringField('契約支給量')
-    usestart = DateField('利用開始日', validators=[Optional()])
     timerule_id = SelectField('タイムテーブル', render_kw={'class': 'form-control'})
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
@@ -56,8 +52,16 @@ def create():
         db.session.add(person)
         try:
             db.session.commit()
-            flash('メンバーの追加ができました', 'success')
-            return redirect(url_for('persons.index'))
+            db.session.refresh(person)
+            recipient = Recipient(person_id=person.id)
+            db.session.add(recipient)
+            try:
+                db.session.commit()
+                flash('メンバーの追加ができました', 'success')
+                return redirect(url_for('persons.index'))
+            except Exception as e:
+                db.session.rollback()
+                flash('受給者証登録時にエラーが発生しました "{}"'.format(e), 'danger')
         except Exception as e:
             db.session.rollback()
             flash('メンバー追加時にエラーが発生しました "{}"'.format(e), 'danger')
@@ -108,6 +112,8 @@ def destroy(id):
     if q is not None:
         flash('勤怠データが存在しているため削除できません','danger')
         return redirect(url_for('persons.index'))
+    if bool(person.recipient):
+        db.session.delete(person.recipient)
     db.session.delete(person)
     try:
         db.session.commit()

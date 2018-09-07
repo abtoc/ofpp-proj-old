@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>サブフォームテスト</title>
+    <link rel="stylesheet" href="../app/flaskr/static/bootstrap.min.css">
+    <script src="../app/flaskr/static/jquery.min.js"></script>
+    <script src="../app/flaskr/static/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <form action="">
+        <div class="form-group">
+          <label>テスト１</label>
+          <input type="text" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>テスト２</label>
+          <table width="100%">
+            <tbody>
+              <tr>
+                <th>
+                  <label>テスト２１</label>
+                </th>
+                <td>
+                  <input type="text">
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label>テスト２２</label>
+                </th>
+                <td>
+                  <input type="text">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-group">
+          <input type="submit" value="保存" class="btn btn-success"><a href="#" class="btn btn-danger">キャンセル</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
