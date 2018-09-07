@@ -6,6 +6,8 @@ from sqlalchemy import func
 from flask_login import UserMixin
 from werkzeug import check_password_hash, generate_password_hash
 from flaskr import db, cache
+import pymysql
+pymysql.install_as_MySQLdb()
 
 def _get_now():
     return datetime.now()
@@ -16,7 +18,11 @@ def _get_uuid():
 # 利用者テーブル
 class Person(db.Model):
     __tablename__ = 'persons'
-    id = db.Column(db.String(36), primary_key=True, default=_get_uuid)
+    __table_args__ = (
+        db.PrimaryKeyConstraint('id'),
+        {'mysql_engine': 'InnoDB'}
+    )
+    id = db.Column(db.String(36), default=_get_uuid)
     name = db.Column(db.String(64), nullable=False)     # 名前
     display = db.Column(db.String(64), nullable=True)   # 表示名
     idm = db.Column(db.String(16), unique=True)         # Ferica IDM
@@ -64,7 +70,12 @@ class Person(db.Model):
 # 受給者証テーブル
 class Recipient(db.Model):
     __tablename__ = 'recipients'
-    person_id = db.Column(db.String(36), db.ForeignKey('persons.id',onupdate='CASCADE', ondelete='CASCADE'), primary_key=True) # 利用者ID
+    __table_args__ = (
+        db.PrimaryKeyConstraint('person_id'),
+        db.ForeignKeyConstraint(['person_id'], ['persons.id'], onupdate='CASCADE', ondelete='CASCADE'),
+        {'mysql_engine': 'InnoDB'}
+    )
+    person_id = db.Column(db.String(36))                # 利用者ID
     number = db.Column(db.String(10), nullable=True)    # 受給者番号
     amount = db.Column(db.String(64), nullable=True)    # 契約支給量
     usestart = db.Column(db.Date, nullable=True)        # 利用開始日
@@ -76,11 +87,15 @@ class Recipient(db.Model):
     update_at = db.Column(db.DateTime, onupdate=_get_now)
     person = db.relationship('Person', back_populates="recipient")
     def is_apply_over(self, yymmdd=None):
+        if (not bool(self.apply_in)) or (not bool(self.apply_out)):
+            return False
         if yymmdd is None:
             yymmdd = date.today()
         yymmdd = yymmdd + relativedelta(months=1)
         return self.apply_out < yymmdd
     def is_supply_over(self, yymmdd=None):
+        if (not bool(self.supply_in)) or (not bool(self.supply_out)):
+            return False
         if yymmdd is None:
             yymmdd = date.today()
         yymmdd = yymmdd + relativedelta(months=1)
@@ -94,9 +109,14 @@ class Recipient(db.Model):
 # 実績記録表
 class PerformLog(db.Model):
     __tablename__ = 'performlogs'
-    person_id = db.Column(db.String(36), db.ForeignKey('persons.id'), primary_key=True) # 利用者ID
-    yymm = db.Column(db.String(8), primary_key=True) # 年月
-    dd = db.Column(db.Integer, primary_key=True)     # 日
+    __table_args__ = (
+        db.PrimaryKeyConstraint('person_id', 'yymm', 'dd'),
+        db.ForeignKeyConstraint(['person_id'], ['persons.id']),
+        {'mysql_engine': 'InnoDB'}
+    )
+    person_id = db.Column(db.String(36))             # 利用者ID
+    yymm = db.Column(db.String(8))                   # 年月
+    dd = db.Column(db.Integer)                       # 日
     enabled = db.Column(db.Boolean)                  # 月の日数-8を超えたらFalse
     absence = db.Column(db.Boolean, nullable=False)  # 欠席
     absence_add = db.Column(db.Boolean, nullable=False) # 欠席加算対象
@@ -112,6 +132,7 @@ class PerformLog(db.Model):
     remarks = db.Column(db.String(128))              # 備考
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)
+    absencelog = db.relationship('AbsenceLog', uselist=False, back_populates="performlog")
     def populate_form(self,form):
         form.populate_obj(self)
         if not bool(self.work_in):
@@ -138,12 +159,45 @@ class PerformLog(db.Model):
     def get_yymm(cls, id, yymm):
         return cls.query.filter(cls.person_id == id, cls.yymm == yymm).all()
 
+# 欠席時対応加算記録
+class AbsenceLog(db.Model):
+    __tablename__ = 'absencelogs'
+    __table_args__ = (
+        db.PrimaryKeyConstraint('person_id', 'yymm', 'dd'),
+        db.ForeignKeyConstraint(['person_id', 'yymm','dd'], ['performlogs.person_id','performlogs.yymm','performlogs.dd'],onupdate='CASCADE', ondelete='CASCADE'),
+        db.ForeignKeyConstraint(['person_id'], ['persons.id']),
+        db.ForeignKeyConstraint(['staff_id'], ['persons.id']),
+        db.Index('absencelogs_yymmdd', 'yymm', 'dd'),
+        {'mysql_engine': 'InnoDB'}
+    )
+    person_id = db.Column(db.String(36))             # 利用者ID
+    yymm = db.Column(db.String(8))                   # 年月
+    dd = db.Column(db.Integer)                       # 日
+    staff_id = db.Column(db.String(36))              # 対応職員
+    enabled = db.Column(db.Boolean)                  # 月に４回以上であればFalse
+    deleted = db.Column(db.Boolean)                  # 欠席加算のチェックオフになったらTrue
+    reason = db.Column(db.String(128))               # 欠席理由
+    remarks = db.Column(db.String(128))              # 相談援助
+    create_at = db.Column(db.DateTime, default=_get_now)
+    update_at = db.Column(db.DateTime, onupdate=_get_now)
+    performlog = db.relationship('PerformLog', back_populates="absencelog")
+    def populate_form(self,form):
+        form.populate_obj(self)
+    @classmethod
+    def get(cls, id, yymm, dd):
+        return cls.query.filter(cls.person_id == id, cls.yymm == yymm, cls.dd == dd).first()
+
 # 勤怠記録表
 class WorkLog(db.Model):
     __tablename__ = 'worklogs'
-    person_id = db.Column(db.String(36), db.ForeignKey('persons.id'), primary_key=True) # 利用者ID
-    yymm = db.Column(db.String(8), primary_key=True) # 年月
-    dd = db.Column(db.Integer, primary_key=True)     # 日
+    __table_args__ = (
+        db.PrimaryKeyConstraint('person_id', 'yymm', 'dd'),
+        db.ForeignKeyConstraint(['person_id'], ['persons.id']),
+        {'mysql_engine': 'InnoDB'}
+    )
+    person_id = db.Column(db.String(36))             # 利用者ID
+    yymm = db.Column(db.String(8))                   # 年月
+    dd = db.Column(db.Integer)                       # 日
     work_in  = db.Column(db.String(8))               # 開始時間
     work_out = db.Column(db.String(8))               # 終了時間
     value = db.Column(db.Float)                      # 勤務時間
@@ -201,7 +255,11 @@ class User(db.Model, UserMixin):
 # 時間ルールテーブル
 class TimeRule(db.Model):
     __tablename__ = 'timerules'
-    id = db.Column(db.String(36), primary_key=True, default=_get_uuid)
+    __table_args__ = (
+        db.PrimaryKeyConstraint('id'),
+        {'mysql_engine': 'InnoDB'}
+    )
+    id = db.Column(db.String(36), default=_get_uuid)
     caption = db.Column(db.String(64), nullable=False)  # 名前
     rules = db.Column(db.Text)                          # ルール(JSON)
     create_at = db.Column(db.DateTime, default=_get_now)
@@ -215,7 +273,11 @@ class TimeRule(db.Model):
 # オプション
 class Option(db.Model):
     __tablename__ = 'options'
-    id = db.Column(db.String(32), primary_key=True, default=_get_uuid)
+    __table_args__ = (
+        db.PrimaryKeyConstraint('id'),
+        {'mysql_engine': 'InnoDB'}
+    )
+    id = db.Column(db.String(32), default=_get_uuid)
     name = db.Column(db.String(64), nullable=False, unique=True)
     value = db.Column(db.String(512), nullable=False)
     create_at = db.Column(db.DateTime, default=_get_now)

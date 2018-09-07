@@ -49,19 +49,13 @@ def create():
         person.populate_form(form)
         person.id = None
         person.staff = False
+        recipient=Recipient()
+        person.recipient = recipient
         db.session.add(person)
         try:
             db.session.commit()
-            db.session.refresh(person)
-            recipient = Recipient(person_id=person.id)
-            db.session.add(recipient)
-            try:
-                db.session.commit()
-                flash('メンバーの追加ができました', 'success')
-                return redirect(url_for('persons.index'))
-            except Exception as e:
-                db.session.rollback()
-                flash('受給者証登録時にエラーが発生しました "{}"'.format(e), 'danger')
+            flash('メンバーの追加ができました', 'success')
+            return redirect(url_for('persons.index'))
         except Exception as e:
             db.session.rollback()
             flash('メンバー追加時にエラーが発生しました "{}"'.format(e), 'danger')

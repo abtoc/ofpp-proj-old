@@ -55,7 +55,7 @@ def edit(id):
         db.session.add(recipient)
         try:
             db.session.commit()
-            flash('受給者証ーの更新ができました', 'success')
+            flash('受給者証の更新ができました', 'success')
             return redirect(url_for('recipients.index'))
         except Exception as e:
             db.session.rollback()
