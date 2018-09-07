@@ -173,9 +173,9 @@ class AbsenceLog(db.Model):
     person_id = db.Column(db.String(36))             # 利用者ID
     yymm = db.Column(db.String(8))                   # 年月
     dd = db.Column(db.Integer)                       # 日
-    staff_id = db.Column(db.String(36))              # 対応職員
     enabled = db.Column(db.Boolean)                  # 月に４回以上であればFalse
     deleted = db.Column(db.Boolean)                  # 欠席加算のチェックオフになったらTrue
+    staff_id = db.Column(db.String(36))              # 対応職員
     reason = db.Column(db.String(128))               # 欠席理由
     remarks = db.Column(db.String(128))              # 相談援助
     create_at = db.Column(db.DateTime, default=_get_now)

@@ -6,7 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db, cache
-from flaskr.models import Person, PerformLog
+from flaskr.models import Person, PerformLog, AbsenceLog
 from flaskr.utils import weeka
 from flaskr.workers.worklogs import sync_worklog_from_performlog
 from flaskr.workers.performlogs import update_performlogs_enabled
@@ -165,6 +165,10 @@ def create(id, yymm, dd):
         performlog.populate_form(form)
         try:
             performlog.validate()
+            if performlog.absence_add:
+                absencelog = AbsenceLog()
+                absencelog.deleted = False
+                performlog.absencelog = absencelog
             db.session.add(performlog)
             try:
                 db.session.commit()
@@ -203,6 +207,15 @@ def edit(id, yymm, dd):
         performlog.populate_form(form)
         try:
             performlog.validate()
+            if performlog.absence_add:
+                if bool(performlog.absencelog):
+                    performlog.absencelog.deleted = False
+                else:
+                    absencelog = AbsenceLog()
+                    performlog.absencelog = absencelog
+            else:
+                if bool(performlog.absencelog):
+                    performlog.absencelog.deleted = True
             db.session.add(performlog)
             try:
                 db.session.commit()
@@ -231,6 +244,8 @@ def destroy(id,yymm,dd):
     performlog = PerformLog.get(id, yymm, dd)
     if performlog is None:
         abort(404)
+    if bool(performlog.absencelog):
+        db.session.delete(performlog.absencelog)
     db.session.delete(performlog)
     try:
         db.session.commit()
