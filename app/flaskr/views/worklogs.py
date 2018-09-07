@@ -9,6 +9,7 @@ from flaskr import app, db
 from flaskr.models import Person, WorkLog
 from flaskr.utils import weeka
 from flaskr.workers.worklogs import update_worklog_value
+from flaskr.workers.performlogs import sync_performlog_from_worklog
 
 bp = Blueprint('worklogs', __name__, url_prefix='/worklogs')
 
@@ -226,4 +227,10 @@ def destroy(id,yymm,dd):
     except Exception as e:
         db.session.rollback()
         flash('勤怠削除時にエラーが発生しました "{}"'.format(e), 'danger')
+    return redirect(url_for('worklogs.index', id=id, yymm=yymm))
+
+@bp.route('/<id>/<yymm>/update')
+@login_required
+def update(id,yymm):
+    sync_performlog_from_worklog.delay(id, yymm)
     return redirect(url_for('worklogs.index', id=id, yymm=yymm))

@@ -241,3 +241,10 @@ def destroy(id,yymm,dd):
         db.session.rollback()
         flash('実績削除時にエラーが発生しました "{}"'.format(e), 'danger')
     return redirect(url_for('performlogs.index', id=id, yymm=yymm))
+
+@bp.route('/<id>/<yymm>/update')
+@login_required
+def update(id,yymm):
+    sync_worklog_from_performlog.delay(id, yymm)
+    update_performlogs_enabled.delay(id, yymm)
+    return redirect(url_for('performlogs.index', id=id, yymm=yymm))
