@@ -131,14 +131,14 @@ def index(id, yymm=None):
             item['outside'] = performlog.outside
             item['remarks'] = performlog.remarks
             if (bool(item['enabled'])) and (not bool(item['absence'])):
-                foot['count'] = foot['count'] + (1 if item['work_in'] is not None else 0)
-                foot['pickup'] = foot['pickup'] + (1 if item['pickup_in'] is not None else 0)
-                foot['pickup'] = foot['pickup'] + (1 if item['pickup_out'] is not None else 0)
-                foot['visit'] = foot['visit'] + (1 if item['visit'] is not None else 0)
-                foot['meal'] = foot['meal'] + (1 if item['meal'] is not None else 0)
-                foot['medical'] = foot['medical'] + (1 if item['medical'] is not None else 0)
-                foot['experience'] = foot['experience'] + (1 if item['experience'] is not None else 0)
-                foot['outside'] = foot['outside'] + (1 if item['outside'] is not None else 0)
+                foot['count'] += 1 if bool(item['work_in']) else 0
+                foot['pickup'] += item['pickup_in'] if bool(item['pickup_in']) else 0
+                foot['pickup'] += item['pickup_out'] if bool(item['pickup_out']) else 0
+                foot['visit'] += 1 if bool(item['visit'])  else 0
+                foot['meal'] += item['meal'] if bool(item['meal']) else 0
+                foot['medical'] += 1 if bool(item['medical']) else 0
+                foot['experience'] += 1 if bool(item['experience']) else 0
+                foot['outside'] += item['outside'] if bool(item['outside']) else 0
         items.append(item)
         first = first + relativedelta(days=1)
     return render_template('performlogs/index.pug', id=id, yymm=yymm, head=head, items=items, foot=foot)

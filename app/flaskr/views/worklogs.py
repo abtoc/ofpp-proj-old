@@ -110,23 +110,13 @@ def index(id, yymm=None):
             item['late'] = worklog.late
             item['leave'] = worklog.leave
             item['remarks'] = worklog.remarks
-            if worklog.value is not None:
-                foot['cnt'] = foot['cnt'] + 1
-                foot['sum'] = foot['sum'] + worklog.value
-            if worklog.break_t is not None:
-                foot['break_t'] = foot['break_t'] + worklog.break_t
-            if worklog.over_t is not None:
-                foot['over_t'] = foot['over_t'] + worklog.over_t
-            if worklog.absence:
-               foot['absence'] = foot['absence'] + 1
-            if worklog.late:
-                foot['late'] = foot['late'] + 1
-            if worklog.leave:
-                foot['leave'] = foot['leave'] + 1
-        if foot['cnt'] != 0:
-            foot['avg'] = foot['sum'] / foot['cnt']
-        else:
-            foot['avg'] = 0
+            foot['cnt'] += 1 if bool(worklog.value) else 0
+            foot['sum'] += worklog.value if bool(worklog.value) else 0
+            foot['break_t'] += worklog.break_t if bool(worklog.break_t) else 0
+            foot['over_t'] += worklog.over_t if bool(worklog.over_t) else 0
+            foot['absence'] += 1 if bool(worklog.absence) else 0
+            foot['late'] += 1 if bool(worklog.late) else 0
+            foot['leave'] += 1 if bool(worklog.leave) else 0
         items.append(item)
         first = first + relativedelta(days=1)
     return render_template('worklogs/index.pug', id=id, yymm=yymm, head=head, items=items, foot=foot)

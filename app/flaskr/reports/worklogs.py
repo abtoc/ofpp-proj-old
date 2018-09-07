@@ -64,14 +64,14 @@ def make_items(id, yymm):
         item['work_out'] = worklog.work_out if bool(worklog.work_out) else ''
         if worklog.break_t is not None:
             item['break_t'] = worklog.break_t
-            foot['break_t'] = foot['break_t'] + worklog.break_t
+            foot['break_t'] +=  worklog.break_t
         if worklog.value is not None:
             item['value'] = worklog.value
-            foot['value'] = foot['value'] + worklog.value
-            foot['count'] = foot['count'] + 1
+            foot['value'] += worklog.value
+            foot['count'] += 1
         if worklog.over_t is not None:
             item['over_t'] = worklog.over_t
-            foot['over_t'] = foot['over_t'] + worklog.over_t
+            foot['over_t'] += worklog.over_t
         item['absence'] = '○' if bool(worklog.absence) else ''
         foot['absence'] = foot['absence'] + (1 if bool(worklog.absence) else 0) 
         item['leave'] = '○' if bool(worklog.leave) else ''

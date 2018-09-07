@@ -74,36 +74,29 @@ def make_items(id, yymm):
         if (performlog.absence_add) and (foot['absence'] < 4):
             foot['absence'] = foot['absence'] + 1
             item['stat'] = '欠席'
+            item['remarks'] = performlog.remarks
             items.append(item)
             continue            
         if not performlog.enabled:
             continue
-        foot['count'] = foot['count'] + 1
-        item['work_in'] = performlog.work_in if performlog.work_in is not None else ''
-        item['work_out'] = performlog.work_out if performlog.work_out is not None else ''
-        if (performlog.pickup_in is not None) and (performlog.pickup_in != 0):
-            item['pickup_in'] = performlog.pickup_in
-            foot['pickup'] = foot['pickup'] + performlog.pickup_in
-        if (performlog.pickup_out is not None) and (performlog.pickup_out != 0):
-            item['pickup_out'] = performlog.pickup_out
-            foot['pickup'] = foot['pickup'] + performlog.pickup_out
-        if (performlog.visit is not None) and (performlog.visit != 0):
-            item['visit'] = performlog.visit
-            foot['visit'] = foot['visit'] + 1
-        if (performlog.meal is not None) and (performlog.meal != 0):
-            item['meal'] = performlog.meal
-            foot['meal'] = foot['meal'] + performlog.meal
-        if (performlog.medical is not None) and (performlog.medical != 0):
-            item['medical'] = performlog.medical
-            foot['medical'] = foot['medical'] + 1
-        if (performlog.experience is not None) and (performlog.experience != 0):
-            item['experience'] = performlog.experience
-            foot['experience'] = foot['experience'] + 1
-        if (performlog.outside is not None) and (performlog.outside != 0):
-            item['outside'] = performlog.outside
-            foot['outside'] = foot['outside'] + 1
-        if person.is_usestart(date(yy,mm,performlog.dd)):
-            foot['usestart'] = foot['usestart'] + 1
+        foot['count'] += 1
+        item['work_in'] = performlog.work_in if bool(performlog.work_in) else ''
+        item['work_out'] = performlog.work_out if bool(performlog.work_out) else ''
+        item['pickup_in'] = performlog.pickup_in
+        item['pickup_out'] = performlog.pickup_out
+        item['visit'] = performlog.visit
+        item['meal'] = performlog.meal
+        item['medical'] = performlog.medical
+        item['experience'] = performlog.experience
+        item['outside'] = performlog.outside
+        foot['pickup'] += performlog.pickup_in if bool(performlog.pickup_in) else 0
+        foot['pickup'] += performlog.pickup_out if bool(performlog.pickup_out) else 0
+        foot['visit'] += 1 if bool(performlog.visit) else 0
+        foot['meal'] += performlog.meal if bool(performlog.meal) else 0
+        foot['medical'] += 1 if bool(performlog.medical) else 0
+        foot['experience'] += 1 if bool(performlog.experience) else 0
+        foot['outside'] += 1 if bool(performlog.outside) else 0
+        foot['usestart'] += 1 if person.is_usestart(date(yy,mm,performlog.dd)) else 0
         item['remarks'] = performlog.remarks
         items.append(item)
     return items, foot
