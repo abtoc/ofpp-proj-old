@@ -7,7 +7,7 @@ from wtforms import StringField, BooleanField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db, cache
 from flaskr.models import Person, PerformLog
-from flaskr.utils import weeka, is_zero_none
+from flaskr.utils import weeka
 from flaskr.workers.worklogs import sync_worklog_from_performlog
 from flaskr.workers.performlogs import update_performlogs_enabled
 
@@ -16,9 +16,6 @@ bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')
 class PerformLogsFormIDM(FlaskForm):
     absence = BooleanField('欠席')
     absence_add = BooleanField('欠席加算')
-    absence_staff = StringField('欠席対応職員')
-    absence_reason = StringField('欠席理由')
-    absence_consultation = StringField('欠席相談援助')
     work_in = StringField('開始時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
     work_out = StringField('終了時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
     pickup_in = IntegerField('送迎加算（往路）', validators=[Optional()])
@@ -33,9 +30,6 @@ class PerformLogsFormIDM(FlaskForm):
 class PerformLogsForm(FlaskForm):
     absence = BooleanField('欠席')
     absence_add = BooleanField('欠席加算')
-    absence_staff = StringField('欠席対応職員')
-    absence_reason = StringField('欠席理由')
-    absence_consultation = StringField('欠席相談援助')
     pickup_in = IntegerField('送迎加算（往路）', validators=[Optional()])
     pickup_out = IntegerField('送迎加算（復路）', validators=[Optional()])
     visit = IntegerField('訪問支援特別加算（時間数）', validators=[Optional()])
@@ -114,7 +108,7 @@ def index(id, yymm=None):
         if performlog is None:
             item['create'] = True
         else:
-            if cache.get('person.id') == id:
+            if person.is_idm():
                 item['edit'] = True
                 item['delete'] = True
             else:
@@ -162,7 +156,7 @@ def create(id, yymm, dd):
         name=person.get_display(),
         yymmdd=yymmdd.strftime('%Y/%m/%d(%a)')
     )
-    if cache.get('person.id') == id:
+    if person.is_idm():
         form =  PerformLogsFormIDM()
     else:
         form =  PerformLogsForm()
@@ -201,7 +195,7 @@ def edit(id, yymm, dd):
     performlog = PerformLog.get(id, yymm, dd)
     if performlog is None:
         abort(404)
-    if cache.get('person.id') == id:
+    if person.is_idm():
         form =  PerformLogsFormIDM(obj=performlog)
     else:
         form =  PerformLogsForm(obj=performlog)
@@ -228,12 +222,12 @@ def edit(id, yymm, dd):
 def destroy(id,yymm,dd):
     if (not _check_yymmdd(yymm,dd=dd)):
         abort(400)
-    if cache.get('person.id') != id:
-        flash('利用者のICカードをセットしてください', 'danger')
-        return redirect(url_for('performlogs.index', id=id, yymm=yymm))
     person   = Person.get(id)
     if person is None:
         abort(404)
+    if not person.is_idm():
+        flash('利用者のICカードをセットしてください', 'danger')
+        return redirect(url_for('performlogs.index', id=id, yymm=yymm))
     performlog = PerformLog.get(id, yymm, dd)
     if performlog is None:
         abort(404)

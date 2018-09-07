@@ -2,7 +2,6 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from flaskr import app, db, celery
 from flaskr.models import Person, PerformLog, WorkLog
-from flaskr.utils import is_zero_none
 
 @celery.task
 def sync_performlog_from_worklog(id, yymm, dd):

@@ -7,7 +7,7 @@ from wtforms import StringField, BooleanField, DecimalField, ValidationError
 from wtforms.validators import DataRequired, Regexp, Optional
 from flaskr import app, db
 from flaskr.models import Person, WorkLog
-from flaskr.utils import weeka, is_zero_none
+from flaskr.utils import weeka
 from flaskr.workers.worklogs import update_worklog_value
 
 bp = Blueprint('worklogs', __name__, url_prefix='/worklogs')

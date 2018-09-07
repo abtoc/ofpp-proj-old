@@ -5,8 +5,7 @@ from wtforms import ValidationError
 from sqlalchemy import func
 from flask_login import UserMixin
 from werkzeug import check_password_hash, generate_password_hash
-from flaskr import db
-from flaskr.utils import is_zero_none
+from flaskr import db, cache
 
 def _get_now():
     return datetime.now()
@@ -42,13 +41,17 @@ class Person(db.Model):
         if usestart is None:
             return False
         return (usestart <= d) and (d <= usestart30d)
+    def is_idm(self):
+        if bool(self.idm):
+            return self.id == cache.get('person.id')
+        return True
     def populate_form(self,form):
         form.populate_obj(self)
-        if (self.id is not None) and (len(self.id) == 0):
+        if not bool(self.id):
             self.id = None
-        if (self.display is not None) and (len(self.display) == 0):
+        if not bool(self.display):
             self.display = None
-        if (self.idm is not None) and (len(self.idm) == 0):
+        if not bool(self.idm):
             self.idm = None
     @classmethod
     def get(cls, id):
@@ -66,9 +69,6 @@ class PerformLog(db.Model):
     enabled = db.Column(db.Boolean)                  # 月の日数-8を超えたらFalse
     absence = db.Column(db.Boolean, nullable=False)  # 欠席
     absence_add = db.Column(db.Boolean, nullable=False) # 欠席加算対象
-    absence_staff = db.Column(db.String(32))         # 欠席対応職員
-    absence_reason = db.Column(db.String(64))        # 欠席理由
-    absence_consultation = db.Column(db.String(128)) # 欠席相談援助
     work_in  = db.Column(db.String(8))               # 開始時間
     work_out = db.Column(db.String(8))               # 終了時間
     pickup_in  = db.Column(db.Integer)               # 送迎加算（往路）
@@ -83,15 +83,15 @@ class PerformLog(db.Model):
     update_at = db.Column(db.DateTime, onupdate=_get_now)
     def populate_form(self,form):
         form.populate_obj(self)
-        if (self.work_in is not None) and (len(self.work_in) == 0):
+        if not bool(self.work_in):
             self.work_in == None
-        if (self.work_out is not None) and (len(self.work_out) == 0):
+        if not bool(self.work_out):
             self.work_out == None
-        if (self.remarks is not None) and (len(self.remarks) == 0):
+        if not bool(self.remarks):
             self.remarks == None
     def validate(self):
         if self.absence:
-            if is_zero_none(self.work_in) or is_zero_none(self.work_out):
+            if bool(self.work_in) or bool(self.work_out):
                 raise ValidationError('開始・終了時刻が入っているため、欠席にはできません')
         if self.absence_add:
             if not self.absence:

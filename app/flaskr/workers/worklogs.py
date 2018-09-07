@@ -1,6 +1,5 @@
 from flaskr import app, db, celery
 from flaskr.models import Person, PerformLog, WorkLog, TimeRule
-from flaskr.utils import is_zero_none
 import json
 
 @celery.task
