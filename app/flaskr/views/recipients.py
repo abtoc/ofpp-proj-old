@@ -23,6 +23,8 @@ def index():
     recipients = Recipient.query.all()
     items = []
     for recipient in recipients:
+        if not recipient.person.enabled:
+            continue
         item = dict(
             id=recipient.person_id,
             enabled=recipient.person.enabled,

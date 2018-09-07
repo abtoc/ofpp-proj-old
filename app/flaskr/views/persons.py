@@ -15,8 +15,8 @@ class PersonForm(FlaskForm):
     name = StringField('名前', validators=[DataRequired(message='必須項目です')])
     display = StringField('表示名')
     idm = StringField('IDM', validators=[UniqueIDM(message='同一IDMが指定されています')])
-    enabled = BooleanField('有効化', default='checked')
     timerule_id = SelectField('タイムテーブル', render_kw={'class': 'form-control'})
+    enabled = BooleanField('有効化', default='checked')
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
         self.timerule_id.choices = [(tr.id, tr.caption) for tr in TimeRule.query.order_by(TimeRule.caption).all()]
