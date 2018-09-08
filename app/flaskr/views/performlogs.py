@@ -10,6 +10,7 @@ from flaskr.models import Person, PerformLog, AbsenceLog
 from flaskr.utils import weeka
 from flaskr.workers.worklogs import sync_worklog_from_performlog
 from flaskr.workers.performlogs import update_performlogs_enabled
+from flaskr.workers.absences import update_absencelog_enabled
 
 bp = Blueprint('performlogs', __name__, url_prefix='/performlogs')
 
@@ -174,6 +175,7 @@ def create(id, yymm, dd):
                 db.session.commit()
                 sync_worklog_from_performlog.delay(id, yymm, dd)
                 update_performlogs_enabled.delay(id, yymm)
+                update_absencelog_enabled.delay(id, yymm)
                 flash('実績の追加ができました','success')
                 return redirect(url_for('performlogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -221,6 +223,7 @@ def edit(id, yymm, dd):
                 db.session.commit()
                 sync_worklog_from_performlog.delay(id, yymm, dd)
                 update_performlogs_enabled.delay(id, yymm)
+                update_absencelog_enabled.delay(id, yymm)
                 flash('実績の更新ができました','success')
                 return redirect(url_for('performlogs.index', id=id, yymm=yymm))
             except Exception as e:
@@ -262,4 +265,5 @@ def destroy(id,yymm,dd):
 def update(id,yymm):
     sync_worklog_from_performlog.delay(id, yymm)
     update_performlogs_enabled.delay(id, yymm)
+    update_absencelog_enabled.delay(id, yymm)
     return redirect(url_for('performlogs.index', id=id, yymm=yymm))

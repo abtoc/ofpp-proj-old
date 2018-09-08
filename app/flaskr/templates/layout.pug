@@ -22,7 +22,10 @@ html(lang="ja")
                 .collapse.navbar-collapse#bs-example-navbar-collapse-1
                     ul.nav.navbar-nav.navbar-left
                         //li: a(href="{{ url_for('index') }}") メニュー２
-                        //li: a(href="{{ url_for('index') }}") メニュー３
+                        li.dropdown
+                            a.dropdown-toggle(data-toggle="dropdown",role="button") 各種帳票
+                            ul.dropdown-menu(role="menu")
+                                li: a(href="{{ url_for('absences.index') }}") 欠席時対応加算記録
                         li.dropdown
                             a.dropdown-toggle(data-toggle="dropdown",role="button") マスター管理
                             ul.dropdown-menu(role="menu")

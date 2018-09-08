@@ -71,7 +71,7 @@ def make_items(id, yymm):
             outside = '',
             remarks = ''
         )
-        if (performlog.absence_add) and (foot['absence'] < 4):
+        if (performlog.absence_add) and (bool(performlog.absencelog)) and (bool(performlog.absencelog.enabled)):
             foot['absence'] = foot['absence'] + 1
             item['stat'] = '欠席'
             item['remarks'] = performlog.remarks
