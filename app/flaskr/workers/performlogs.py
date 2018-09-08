@@ -14,7 +14,7 @@ def sync_performlog_from_worklog(id, yymm, dd=None):
     if dd is None:
         dds = range(1,32)
     else:
-        dds = (dd)
+        dds = (dd,)
     for d in dds:
         worklog = WorkLog.get(id, yymm, d)
         if worklog is None:

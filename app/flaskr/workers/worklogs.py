@@ -11,7 +11,7 @@ def sync_worklog_from_performlog(id, yymm, dd=None):
     if dd is None:
         dds = range(1,32)
     else:
-        dds = (dd)
+        dds = (dd,)
     for d in dds:
         performlog = PerformLog.get(id, yymm, d)
         worklog = WorkLog.get(id, yymm, d)
@@ -57,7 +57,7 @@ def update_worklog_value(id, yymm, dd=None):
     if dd is None:
         dds = range(1,32)
     else:
-        dds = (dd)
+        dds = (dd,)
     for d in dds:
         worklog = WorkLog.get(id, yymm, d)
         if worklog is None:
