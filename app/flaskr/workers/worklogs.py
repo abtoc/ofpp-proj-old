@@ -38,7 +38,7 @@ def sync_worklog_from_performlog(id, yymm, dd=None):
         db.session.add(worklog)
     try:
         db.session.commit()
-        update_worklog_value.delay(id, yymm, dd)
+        update_worklog_value(id, yymm, dd)
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)
