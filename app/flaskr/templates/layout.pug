@@ -41,6 +41,7 @@ html(lang="ja")
                     ul.nav.navbar-nav.navbar-right
                         block menu
                         if current_user.is_authenticated
+                            li: a(href="{{ url_for('auth.passwd') }}") パスワード変更
                             li: a(href="{{ url_for('auth.logout') }}") ログアウト
                         else
                             li: a(href="{{ url_for('auth.login') }}") ログイン
