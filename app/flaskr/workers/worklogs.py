@@ -62,6 +62,8 @@ def update_worklog_value(id, yymm, dd=None):
         worklog = WorkLog.get(id, yymm, d)
         if worklog is None:
             continue
+        if worklog.value is not None:
+            continue
         app.logger.info('Updating WorkLog value from Time-Table. id={} yymm={} dd={}'.format(id,yymm,d))
         if not bool(worklog.work_in):
             continue

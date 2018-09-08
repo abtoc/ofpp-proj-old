@@ -207,6 +207,8 @@ class WorkLog(db.Model):
     late = db.Column(db.Boolean)                     # 遅刻
     leave = db.Column(db.Boolean)                    # 早退
     remarks = db.Column(db.String(128))              # 備考
+    create_at = db.Column(db.DateTime, default=_get_now)
+    update_at = db.Column(db.DateTime, onupdate=_get_now)
     def populate_form(self,form):
         form.populate_obj(self)
         if (self.work_in is not None) and (len(self.work_in) == 0):

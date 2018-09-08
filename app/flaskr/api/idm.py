@@ -41,6 +41,9 @@ def post(idm):
         worklog.work_in = hhmm
     else:
         worklog.work_out = hhmm
+        worklog.value = None
+        worklog.break_t = None
+        worklog.over_t = None
     db.session.add(worklog)
     try:
         db.session.commit()
