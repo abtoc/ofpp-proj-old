@@ -112,6 +112,7 @@ class PerformLog(db.Model):
     __table_args__ = (
         db.PrimaryKeyConstraint('person_id', 'yymm', 'dd'),
         db.ForeignKeyConstraint(['person_id'], ['persons.id']),
+        db.Index('performlogs_yymmdd', 'yymm', 'person_id', 'dd'),
         {'mysql_engine': 'InnoDB'}
     )
     person_id = db.Column(db.String(36))             # 利用者ID
@@ -193,6 +194,7 @@ class WorkLog(db.Model):
     __table_args__ = (
         db.PrimaryKeyConstraint('person_id', 'yymm', 'dd'),
         db.ForeignKeyConstraint(['person_id'], ['persons.id']),
+        db.Index('worklogs_yymmdd', 'yymm', 'person_id', 'dd'),
         {'mysql_engine': 'InnoDB'}
     )
     person_id = db.Column(db.String(36))             # 利用者ID
@@ -279,7 +281,7 @@ class Option(db.Model):
         db.PrimaryKeyConstraint('id'),
         {'mysql_engine': 'InnoDB'}
     )
-    id = db.Column(db.String(32), default=_get_uuid)
+    id = db.Column(db.String(36), default=_get_uuid)
     name = db.Column(db.String(64), nullable=False, unique=True)
     value = db.Column(db.String(512), nullable=False)
     create_at = db.Column(db.DateTime, default=_get_now)
