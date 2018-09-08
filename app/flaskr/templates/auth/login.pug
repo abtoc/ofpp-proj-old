@@ -1,8 +1,0 @@
-extends persons/layout.pug
-
-block title
-    |ログイン
-block content
-    form(method="POST" autocomplete="off")
-      +generate_fields(form)
-      input.btn.btn-success(type="submit",value="ログイン")
