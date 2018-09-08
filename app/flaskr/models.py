@@ -122,13 +122,13 @@ class PerformLog(db.Model):
     absence_add = db.Column(db.Boolean, nullable=False) # 欠席加算対象
     work_in  = db.Column(db.String(8))               # 開始時間
     work_out = db.Column(db.String(8))               # 終了時間
-    pickup_in  = db.Column(db.Integer)               # 送迎加算（往路）
-    pickup_out = db.Column(db.Integer)               # 送迎加算（復路）
+    pickup_in  = db.Column(db.Boolean)               # 送迎加算（往路）
+    pickup_out = db.Column(db.Boolean)               # 送迎加算（復路）
     visit = db.Column(db.Integer)                    # 訪問支援特別加算（時間数）
-    meal = db.Column(db.Integer)                     # 食事提供加算
+    meal = db.Column(db.Boolean)                     # 食事提供加算
     medical = db.Column(db.Integer)                  # 医療連携体制加算
     experience = db.Column(db.Integer)               # 体験利用支援加算
-    outside = db.Column(db.Integer)                  # 施設外支援
+    outside = db.Column(db.Boolean)                  # 施設外支援
     remarks = db.Column(db.String(128))              # 備考
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)

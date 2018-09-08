@@ -19,25 +19,25 @@ class PerformLogsFormIDM(FlaskForm):
     absence_add = BooleanField('欠席加算')
     work_in = StringField('開始時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
     work_out = StringField('終了時間', validators=[Optional(), Regexp(message='HH:MMで入力してください', regex='^[0-2][0-9]:[0-5][0-9]$')])
-    pickup_in = IntegerField('送迎加算（往路）', validators=[Optional()])
-    pickup_out = IntegerField('送迎加算（復路）', validators=[Optional()])
+    pickup_in = BooleanField('送迎加算（往路）', validators=[Optional()])
+    pickup_out = BooleanField('送迎加算（復路）', validators=[Optional()])
+    meal = BooleanField('食事提供加算', validators=[Optional()])
+    outside = BooleanField('施設外支援', validators=[Optional()])
     visit = IntegerField('訪問支援特別加算（時間数）', validators=[Optional()])
-    meal = IntegerField('食事提供加算', validators=[Optional()])
     medical = IntegerField('医療連携体制加算', validators=[Optional()])
     experience = IntegerField('体験利用支援加算（初日ー５日目は１、６日目ー１５日目は2）', validators=[Optional()])
-    outside = IntegerField('施設外支援', validators=[Optional()])
     remarks = StringField('備考')
 
 class PerformLogsForm(FlaskForm):
     absence = BooleanField('欠席')
     absence_add = BooleanField('欠席加算')
-    pickup_in = IntegerField('送迎加算（往路）', validators=[Optional()])
-    pickup_out = IntegerField('送迎加算（復路）', validators=[Optional()])
+    pickup_in = BooleanField('送迎加算（往路）', validators=[Optional()])
+    pickup_out = BooleanField('送迎加算（復路）', validators=[Optional()])
+    meal = BooleanField('食事提供加算', validators=[Optional()])
+    outside = BooleanField('施設外支援', validators=[Optional()])
     visit = IntegerField('訪問支援特別加算（時間数）', validators=[Optional()])
-    meal = IntegerField('食事提供加算', validators=[Optional()])
     medical = IntegerField('医療連携体制加算', validators=[Optional()])
     experience = IntegerField('体験利用支援加算（初日ー５日目は１、６日目ー１５日目は2）', validators=[Optional()])
-    outside = IntegerField('施設外支援', validators=[Optional()])
     remarks = StringField('備考')
 
 def _check_yymmdd(yymm, dd=1):
@@ -123,23 +123,23 @@ def index(id, yymm=None):
             item['absence_add'] = performlog.absence_add
             item['work_in'] = performlog.work_in
             item['work_out'] = performlog.work_out
-            item['pickup_in'] = performlog.pickup_in
-            item['pickup_out'] = performlog.pickup_out
+            item['pickup_in'] = '○' if performlog.pickup_in else ''
+            item['pickup_out'] = '○' if performlog.pickup_out else ''
             item['visit'] = performlog.visit
-            item['meal'] = performlog.meal
+            item['meal'] = '○' if performlog.meal else ''
             item['medical'] = performlog.medical
             item['experience'] = performlog.experience
-            item['outside'] = performlog.outside
+            item['outside'] = '○' if performlog.outside else ''
             item['remarks'] = performlog.remarks
             if (bool(item['enabled'])) and (not bool(item['absence'])):
                 foot['count'] += 1 if bool(item['work_in']) else 0
-                foot['pickup'] += item['pickup_in'] if bool(item['pickup_in']) else 0
-                foot['pickup'] += item['pickup_out'] if bool(item['pickup_out']) else 0
+                foot['pickup'] += 1 if bool(item['pickup_in']) else 0
+                foot['pickup'] += 1 if bool(item['pickup_out']) else 0
                 foot['visit'] += 1 if bool(item['visit'])  else 0
-                foot['meal'] += item['meal'] if bool(item['meal']) else 0
+                foot['meal'] += 1 if bool(item['meal']) else 0
                 foot['medical'] += 1 if bool(item['medical']) else 0
                 foot['experience'] += 1 if bool(item['experience']) else 0
-                foot['outside'] += item['outside'] if bool(item['outside']) else 0
+                foot['outside'] += 1 if bool(item['outside']) else 0
         items.append(item)
         first = first + relativedelta(days=1)
     return render_template('performlogs/index.pug', id=id, yymm=yymm, head=head, items=items, foot=foot)
