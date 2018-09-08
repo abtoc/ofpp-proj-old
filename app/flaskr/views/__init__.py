@@ -42,6 +42,7 @@ def index():
         item['name'] = person.get_display()
         item['staff'] = person.staff
         item['yymm'] = yymm
+        item['yymm_l'] = prev.strftime('%Y%m')
         item['dd'] = today.day
         item['caption'], item['url'] = _get_caption(person, today)
         item['caption1'], item['url1'] = _get_caption(person, yesterday1)
