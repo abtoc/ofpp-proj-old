@@ -27,7 +27,7 @@ def make_head(id, yymm):
     head['amount'] = person.recipient.amount
     head['usestart'] = ''
     head['usestart30d'] = ''
-    usestart, usestart30d = person.get_usestart()
+    usestart, usestart30d = person.recipient.get_usestart()
     if usestart is not None:
         yy1 = usestart.year
         mm1 = usestart.month
@@ -96,7 +96,7 @@ def make_items(id, yymm):
         foot['medical'] += 1 if bool(performlog.medical) else 0
         foot['experience'] += 1 if bool(performlog.experience) else 0
         foot['outside'] += 1 if bool(performlog.outside) else 0
-        foot['usestart'] += 1 if person.is_usestart(date(yy,mm,performlog.dd)) else 0
+        foot['usestart'] += 1 if person.recipient.is_usestart(date(yy,mm,performlog.dd)) else 0
         item['remarks'] = performlog.remarks
         items.append(item)
     return items, foot

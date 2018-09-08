@@ -39,15 +39,6 @@ class Person(db.Model):
         if self.display is None:
             return self.name
         return self.display
-    def get_usestart(self):
-        if self.usestart is None:
-            return None, None
-        return  self.usestart, self.usestart + relativedelta(days=30)
-    def is_usestart(self, d):
-        usestart, usestart30d = self.get_usestart()
-        if usestart is None:
-            return False
-        return (usestart <= d) and (d <= usestart30d)
     def is_idm(self):
         if bool(self.idm):
             return self.id == cache.get('person.id')
@@ -86,6 +77,15 @@ class Recipient(db.Model):
     create_at = db.Column(db.DateTime, default=_get_now)
     update_at = db.Column(db.DateTime, onupdate=_get_now)
     person = db.relationship('Person', back_populates="recipient")
+    def get_usestart(self):
+        if self.usestart is None:
+            return None, None
+        return  self.usestart, self.usestart + relativedelta(days=30)
+    def is_usestart(self, d):
+        usestart, usestart30d = self.get_usestart()
+        if usestart is None:
+            return False
+        return (usestart <= d) and (d <= usestart30d)
     def is_apply_over(self, yymmdd=None):
         if (not bool(self.apply_in)) or (not bool(self.apply_out)):
             return False
